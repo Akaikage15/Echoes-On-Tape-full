@@ -11,7 +11,9 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { setCurrentUser, mockUsers } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import apiClient from '../lib/api';
+import { User } from '../lib/data';
 
 interface AuthModalProps {
   open: boolean;
@@ -22,26 +24,30 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { setCurrentUser } = useSessionStore();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mock login - find user by email
-    const user = mockUsers.find(u => u.email === email);
-    if (user) {
-      setCurrentUser(user);
+    setLoading(true);
+    setError(null);
+    try {
+      // NOTE: This will currently fail with 501, which is expected.
+      const response = await apiClient.post<User>('/auth/login', { email, password });
+      setCurrentUser(response.data);
       onClose();
-      // Refresh page to update header
-      window.location.reload();
-    } else {
-      alert('Пользователь не найден. Попробуйте: fan@example.com или pro@example.com');
+    } catch (err) {
+      setError('Не удалось войти. Проверьте email и пароль.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    
     // Mock registration - redirect to pricing
     onClose();
     navigate('/pricing');
@@ -67,6 +73,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
           <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-4 mt-4">
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email</Label>
                 <Input
@@ -77,6 +84,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="bg-secondary border-border"
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -89,17 +97,15 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="bg-secondary border-border"
+                  disabled={loading}
                 />
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Для тестирования используйте:<br />
-                <span className="text-primary">fan@example.com</span> или <span className="text-primary">pro@example.com</span>
               </div>
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-accent-secondary"
+                disabled={loading}
               >
-                Войти
+                {loading ? 'Вход...' : 'Войти'}
               </Button>
             </form>
           </TabsContent>
