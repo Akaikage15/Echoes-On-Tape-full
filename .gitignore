@@ -1,0 +1,8 @@
+.gemini/
+gha-creds-*.json
+
+.env
+
+.github
+
+frontend_analysis_prompt.md
