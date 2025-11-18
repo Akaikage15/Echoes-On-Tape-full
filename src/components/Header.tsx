@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, Music } from 'lucide-react';
 import { Button } from './ui/button';
-import { currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
 import { AuthModal } from './AuthModal';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { currentUser, isAuthenticated } = useSessionStore();
   const location = useLocation();
 
   const navLinks = [
@@ -50,7 +51,7 @@ export function Header() {
 
             {/* Right side actions */}
             <div className="flex items-center gap-4">
-              {currentUser ? (
+              {isAuthenticated && currentUser ? (
                 <Link to="/account">
                   <Button variant="ghost" size="sm" className="gap-2">
                     <User className="h-4 w-4" />
@@ -106,7 +107,7 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              {!currentUser && (
+              {!isAuthenticated && (
                 <Button
                   variant="ghost"
                   size="sm"
