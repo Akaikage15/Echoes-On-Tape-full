@@ -1,18 +1,45 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ReleaseCard } from '../components/ReleaseCard';
-import { releases, artists } from '../lib/data';
+import { artists, Release } from '../lib/data'; // Keep artists for filters for now
+import apiClient from '../lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Skeleton } from '../components/ui/skeleton';
 import { currentUser } from '../lib/data';
 
 export function ReleasesPage() {
+  const [releases, setReleases] = useState<Release[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [artistFilter, setArtistFilter] = useState<string>('all');
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  useEffect(() => {
+    const fetchReleases = async () => {
+      try {
+        setLoading(true);
+        // NOTE: This will currently fail with 501, which is expected.
+        // We are building the frontend structure first.
+        const response = await apiClient.get('/releases');
+        setReleases(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Не удалось загрузить релизы. Сервер пока не реализован.');
+        // Set empty array to show the "not found" message as a fallback
+        setReleases([]); 
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReleases();
+  }, []);
+
   const years = useMemo(() => {
     const yearSet = new Set(releases.map(r => r.year));
     return Array.from(yearSet).sort((a, b) => b - a);
-  }, []);
+  }, [releases]);
 
   const filteredReleases = useMemo(() => {
     return releases.filter(release => {
@@ -21,7 +48,7 @@ export function ReleasesPage() {
       if (typeFilter !== 'all' && release.type !== typeFilter) return false;
       return true;
     });
-  }, [artistFilter, yearFilter, typeFilter]);
+  }, [releases, artistFilter, yearFilter, typeFilter]);
 
   return (
     <div className="min-h-screen py-16">
@@ -89,7 +116,21 @@ export function ReleasesPage() {
         </div>
 
         {/* Results */}
-        {filteredReleases.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-[250px] w-full" />
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+           <div className="text-center py-16">
+            <p className="text-lg text-destructive">{error}</p>
+          </div>
+        ) : filteredReleases.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredReleases.map(release => (
               <ReleaseCard key={release.id} release={release} showExclusiveBadge={!!currentUser} />
@@ -99,7 +140,7 @@ export function ReleasesPage() {
           <div className="text-center py-16">
             <p className="text-lg text-muted-foreground">Релизов не найдено</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Попробуйте изменить фильтры
+              Попробуйте изменить фильтры или сбросить их.
             </p>
           </div>
         )}
