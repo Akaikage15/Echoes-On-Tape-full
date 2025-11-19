@@ -7,39 +7,39 @@
 
 *   **Коммит:** `feat(frontend): P1.1 - Implement AccountPage subscription management`
 *   **Описание:** Завершение части задачи P1.1. Страница `AccountPage.tsx` обновлена для корректного отображения статуса подписки пользователя из `useSessionStore`. Реализована симулированная функция "отмены подписки", которая сбрасывает `subscriptionTier` и `subscriptionEndDate` в `currentUser`. Обновлены функции `getTierLabel` и `getTierColor` для работы с новым типом подписки. Добавлена обработка `toast` уведомлений.
-*   **Ветка:** `feature/account-page`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(frontend): P1.1 - Integrate simulated subscription purchase on PricingPage`
 *   **Описание:** Завершение части задачи P1.1. Страница `PricingPage.tsx` обновлена для взаимодействия с эндпоинтом бэкенда `/api/subscriptions/purchase`. Реализована логика выбора тарифа: при клике на "Выбрать" авторизованный пользователь отправляет запрос на покупку подписки. После успешного ответа, статус подписки пользователя обновляется в `useSessionStore`. Добавлена обработка состояний загрузки и ошибок, а также `toast` уведомления.
-*   **Ветка:** `feature/subscription-purchase`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(backend): P1.1 - Implement simulated subscription purchase API`
 *   **Описание:** Начало выполнения задачи P1.1 (интеграция платежной системы). Добавлен эндпоинт POST `/api/subscriptions/purchase`, который имитирует покупку подписки. Эндпоинт принимает `tier` подписки и привязывается к авторизованному пользователю. Обновление статуса подписки пользователя происходит в in-memory хранилище. Эндпоинт защищен `authenticateToken` middleware.
-*   **Ветка:** `feature/subscription-purchase`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(frontend): P0.3 - Integrate blog posts API`
 *   **Описание:** Завершение части задачи P0.3. Интегрированы API для блог-постов. Обновлены `src/pages/BlogPage.tsx` и `src/pages/BlogPostPage.tsx` для асинхронной загрузки данных из бэкенда. Обновлены типы в `src/types/index.ts` для соответствия API ответам. Добавлена обработка состояний загрузки и ошибок, а также логика отображения эксклюзивного контента в зависимости от статуса подписки пользователя.
-*   **Ветка:** `feature/blog-posts-api`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(backend): P0.2 - Implement posts API`
 *   **Описание:** Завершение части задачи P0.2. Реализованы эндпоинты API для сущности `Posts`: `/api/posts` (получение всех постов), `/api/posts/:id` (получение поста по ID). Использована in-memory база данных (`utils/posts-db.ts`) для временного хранения данных. Добавлена mock-информация для постов.
-*   **Ветка:** `feature/blog-posts-api`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(frontend): P0.3 - Integrate releases and artists API`
 *   **Описание:** Завершение части задачи P0.3. Интегрированы API для релизов и артистов. Обновлены `src/pages/ReleasesPage.tsx`, `src/pages/ReleaseDetailPage.tsx`, `src/pages/ArtistsPage.tsx`, `src/pages/ArtistDetailPage.tsx` для асинхронной загрузки данных из бэкенда. Создан `src/lib/services.ts` для централизации вызовов API. Удалены моковые данные из `src/lib/data.ts`. Обновлены типы в `src/types/index.ts` для соответствия API ответам. Добавлена обработка состояний загрузки и ошибок.
-*   **Ветка:** `feature/auth-backend`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(frontend): P0.3, P1.1 - Integrate auth API with frontend`
 *   **Описание:** Завершение части задач P0.3 и P1.1. Обновлены компоненты `AuthModal.tsx` и `src/lib/store.ts` для взаимодействия с реальными эндпоинтами бэкенда `/api/auth/register`, `/api/auth/login` и `/api/auth/profile`. Реализовано сохранение и загрузка JWT токена из `localStorage`. Добавлен интерцептор `axios` для автоматического добавления токена в заголовки запросов и обработки ошибок авторизации (401/403). Обновлены типы в `src/types/index.ts` для соответствия API ответам.
-*   **Ветка:** `feature/auth-backend`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(backend): P0.2 - Implement releases and artists API`
 *   **Описание:** Завершение части задачи P0.2. Реализованы эндпоинты API для сущностей `Releases` и `Artists`: `/api/releases` (получение всех релизов), `/api/releases/:id` (получение релиза по ID), `/api/artists` (получение всех артистов), `/api/artists/:id` (получение артиста по ID). Использована in-memory база данных (`utils/releases-db.ts`) для временного хранения данных. Добавлена mock-информация для релизов и артистов.
-*   **Ветка:** `feature/auth-backend`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(backend): P0.2 - Implement auth (register, login, profile)`
 *   **Описание:** Завершение части задачи P0.2. Реализованы эндпоинты аутентификации: `/api/auth/register` (регистрация пользователя с хешированием пароля), `/api/auth/login` (вход пользователя, проверка учетных данных, выдача JWT токена), и `/api/auth/profile` (получение профиля по токену). Использована in-memory база данных (`utils/db.ts`) для временного хранения пользователей. Добавлены `bcryptjs` для хеширования, `jsonwebtoken` для токенов и `dotenv` для переменных окружения.
-*   **Ветка:** `feature/auth-backend`
+*   **Ветка:** `dev`
 
 *   **Коммит:** `feat(subscriptions): P2.1, P2.2 - Implement paywall mechanism`
 *   **Описание:** Задачи P2.1. Реализован механизм Paywall. Создан хук `useSubscription` для проверки уровня доступа. Создан компонент `Paywall` для блокировки контента. Механизм применен на странице `ExclusivesPage` для демонстрации работы.
