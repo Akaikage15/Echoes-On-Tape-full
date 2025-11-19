@@ -93,7 +93,7 @@ export function MerchPage() {
 
   return (
     <div className="min-h-screen py-16">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10"> {/* Added relative z-10 for content over particles */}
         {/* Header */}
         <div className="mb-12">
           <h1 className="font-['Bebas_Neue'] text-5xl md:text-6xl tracking-wide mb-4">
@@ -103,7 +103,7 @@ export function MerchPage() {
             Официальный мерч Echoes On Tape
           </p>
           {discount > 0 && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-md border border-primary/20 rounded-lg"> {/* Liquid Glass */}
               <Tag className="h-5 w-5 text-primary" />
               <span className="text-primary font-medium">
                 Ваша скидка подписчика: {discount}%
@@ -133,7 +133,7 @@ export function MerchPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-card rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col"
+                  className="bg-card/80 backdrop-blur-md rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col" {/* Liquid Glass */}
                 >
                   {/* Image */}
                   <div className="aspect-square bg-secondary flex items-center justify-center relative overflow-hidden">
@@ -213,7 +213,7 @@ export function MerchPage() {
 
         {/* Info */}
         {!currentUser && (
-          <div className="mt-12 p-6 bg-primary/5 border border-primary/20 rounded-lg text-center max-w-2xl mx-auto">
+          <div className="mt-12 p-6 bg-primary/5 backdrop-blur-md border border-primary/20 rounded-lg text-center max-w-2xl mx-auto"> {/* Liquid Glass */}
             <Tag className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="font-['Bebas_Neue'] text-2xl mb-2">
               Подписчики получают скидки
