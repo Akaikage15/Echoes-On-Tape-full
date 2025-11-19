@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { User, CreditCard, Download, Tag, Settings, LogOut, Crown } from 'lucide-react';
+import { User, CreditCard, Download, Tag, LogOut, Crown } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import {
@@ -22,24 +22,31 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
-import { currentUser, setCurrentUser, paymentHistory, downloadedMaterials, promoCodes } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import { User as UserType } from '../lib/data';
 
 export function AccountPage() {
   const navigate = useNavigate();
+  const { currentUser, isAuthenticated, logout, setCurrentUser } = useSessionStore();
 
-  if (!currentUser) {
+  if (!isAuthenticated || !currentUser) {
+    // Redirect to home if not authenticated
     navigate('/');
     return null;
   }
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    logout();
     navigate('/');
-    window.location.reload();
   };
 
   const handleCancelSubscription = () => {
-    alert('Автопродление подписки отменено. Доступ сохранится до ' + currentUser.subscriptionExpiry);
+    const updatedUser: UserType = {
+      ...currentUser,
+      subscription: null,
+    };
+    setCurrentUser(updatedUser);
+    alert('Ваша подписка отменена.');
   };
 
   const getTierLabel = (tier: string) => {
@@ -76,9 +83,9 @@ export function AccountPage() {
                 </h1>
                 <p className="text-muted-foreground">{currentUser.email}</p>
                 {currentUser.subscription && (
-                  <Badge className={`mt-2 gap-1 ${getTierColor(currentUser.subscription)}`}>
+                  <Badge className={`mt-2 gap-1 ${getTierColor(currentUser.subscription.tier)}`}>
                     <Crown className="h-3 w-3" />
-                    Подписка {getTierLabel(currentUser.subscription)}
+                    Подписка {getTierLabel(currentUser.subscription.tier)}
                   </Badge>
                 )}
               </div>
@@ -93,9 +100,9 @@ export function AccountPage() {
           <Tabs defaultValue="subscription" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="subscription">Подписка</TabsTrigger>
-              <TabsTrigger value="payments">Платежи</TabsTrigger>
-              <TabsTrigger value="downloads">Скачанное</TabsTrigger>
-              <TabsTrigger value="promocodes">Промокоды</TabsTrigger>
+              <TabsTrigger value="payments" disabled>Платежи</TabsTrigger>
+              <TabsTrigger value="downloads" disabled>Скачанное</TabsTrigger>
+              <TabsTrigger value="promocodes" disabled>Промокоды</TabsTrigger>
             </TabsList>
 
             {/* Subscription Tab */}
@@ -119,36 +126,12 @@ export function AccountPage() {
                       <div>
                         <p className="text-sm text-muted-foreground">Тариф</p>
                         <p className="font-['Bebas_Neue'] text-2xl">
-                          {getTierLabel(currentUser.subscription)}
+                          {getTierLabel(currentUser.subscription.tier)}
                         </p>
                       </div>
-                      <Badge className={getTierColor(currentUser.subscription)}>
-                        Активна
+                      <Badge className={getTierColor(currentUser.subscription.tier)}>
+                        {currentUser.subscription.status}
                       </Badge>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Следующее списание</p>
-                        <p className="font-medium">
-                          {new Date(currentUser.nextPayment || '').toLocaleDateString('ru-RU', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-secondary/50 rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Активна до</p>
-                        <p className="font-medium">
-                          {new Date(currentUser.subscriptionExpiry || '').toLocaleDateString('ru-RU', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
                     </div>
 
                     <div className="flex gap-3">
@@ -167,8 +150,7 @@ export function AccountPage() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Отменить подписку?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Автопродление будет отключено, но доступ к эксклюзивному контенту 
-                              сохранится до конца оплаченного периода.
+                              Автопродление будет отключено. Это действие нельзя будет отменить.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -191,121 +173,6 @@ export function AccountPage() {
                     </Link>
                   </div>
                 )}
-              </div>
-            </TabsContent>
-
-            {/* Payments Tab */}
-            <TabsContent value="payments">
-              <div className="bg-card p-6 rounded-lg">
-                <h3 className="font-['Bebas_Neue'] text-2xl mb-4">История платежей</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Дата</TableHead>
-                      <TableHead>Описание</TableHead>
-                      <TableHead>Сумма</TableHead>
-                      <TableHead>Статус</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paymentHistory.map(payment => (
-                      <TableRow key={payment.id}>
-                        <TableCell>
-                          {new Date(payment.date).toLocaleDateString('ru-RU')}
-                        </TableCell>
-                        <TableCell>{payment.description}</TableCell>
-                        <TableCell>{payment.amount}₽</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-success border-success">
-                            {payment.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-
-            {/* Downloads Tab */}
-            <TabsContent value="downloads">
-              <div className="bg-card p-6 rounded-lg">
-                <h3 className="font-['Bebas_Neue'] text-2xl mb-4">Скачанные материалы</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Название</TableHead>
-                      <TableHead>Тип</TableHead>
-                      <TableHead>Дата скачивания</TableHead>
-                      <TableHead>Действие</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {downloadedMaterials.map(item => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.title}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{item.type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(item.date).toLocaleDateString('ru-RU')}
-                        </TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="ghost" className="gap-2">
-                            <Download className="h-4 w-4" />
-                            Скачать снова
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-
-            {/* Promo Codes Tab */}
-            <TabsContent value="promocodes">
-              <div className="bg-card p-6 rounded-lg">
-                <h3 className="font-['Bebas_Neue'] text-2xl mb-4">Ваши промокоды</h3>
-                <div className="space-y-4">
-                  {promoCodes.map(promo => (
-                    <div key={promo.id} className="p-4 bg-secondary/50 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <Tag className="h-8 w-8 text-primary" />
-                        <div>
-                          <p className="font-['Bebas_Neue'] text-xl">{promo.code}</p>
-                          <p className="text-sm text-muted-foreground">{promo.description}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge className="mb-2">{promo.discount}</Badge>
-                        <p className="text-xs text-muted-foreground">
-                          До {new Date(promo.validUntil).toLocaleDateString('ru-RU')}
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-2"
-                          onClick={() => {
-                            navigator.clipboard.writeText(promo.code);
-                            alert('Промокод скопирован!');
-                          }}
-                        >
-                          Копировать
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    Используйте промокоды в{' '}
-                    <Link to="/merch" className="text-primary hover:underline">
-                      магазине мерча
-                    </Link>
-                    {' '}для получения скидки
-                  </p>
-                </div>
               </div>
             </TabsContent>
           </Tabs>
