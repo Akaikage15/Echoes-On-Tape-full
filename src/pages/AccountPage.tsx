@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, CreditCard, Download, Tag, LogOut, Crown } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -30,11 +31,11 @@ export function AccountPage() {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, logout, setCurrentUser } = useSessionStore();
 
-  if (!isAuthenticated || !currentUser) {
-    // Redirect to home if not authenticated
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -72,6 +73,10 @@ export function AccountPage() {
       default: return 'bg-secondary text-secondary-foreground';
     }
   };
+  
+  if (!isAuthenticated || !currentUser) {
+    return null;
+  }
 
   const hasSubscription = currentUser.subscriptionTier !== 'none';
 
