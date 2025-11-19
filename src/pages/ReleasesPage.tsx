@@ -96,7 +96,7 @@ export function ReleasesPage() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 bg-card p-6 rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 bg-card p-6 rounded-lg relative z-20">
           <div className="space-y-2">
             <label className="text-sm text-muted-foreground">Артист</label>
             <Select value={artistFilter} onValueChange={setArtistFilter}>

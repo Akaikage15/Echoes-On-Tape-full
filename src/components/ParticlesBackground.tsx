@@ -108,7 +108,7 @@ export const ParticlesBackground = () => {
         id="tsparticles"
         particlesLoaded={particlesLoaded}
         options={options}
-        className="absolute top-0 left-0 w-full h-full z-0"
+        className="absolute top-0 left-0 w-full h-full -z-1 pointer-events-none"
       />
     );
   }

@@ -90,7 +90,7 @@ export function HomePage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-16">
+      <section className="py-16 bg-background relative z-10">
         <div className="container mx-auto px-4">
           <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide text-center mb-12">
             Преимущества подписки
@@ -159,7 +159,7 @@ export function HomePage() {
       </section>
 
       {/* Blog Preview */}
-      <section className="py-16">
+      <section className="py-16 bg-background relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide">
