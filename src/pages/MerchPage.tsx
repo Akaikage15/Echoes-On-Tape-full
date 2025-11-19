@@ -1,24 +1,77 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Tag } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { merchItems, currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import { SubscriptionTier } from '../types';
+
+interface MerchItem {
+  id: string;
+  title: string;
+  price: number;
+  category: 'clothing' | 'accessories' | 'posters';
+  image: string; // Placeholder for image URL
+  sizes?: string[];
+}
+
+const mockMerchItems: MerchItem[] = [
+  {
+    id: 'merch1',
+    title: 'Echoes On Tape - Classic Logo Tee',
+    price: 2500,
+    category: 'clothing',
+    image: '',
+    sizes: ['S', 'M', 'L', 'XL'],
+  },
+  {
+    id: 'merch2',
+    title: '"Meadow Cushion" Album Art Poster',
+    price: 1500,
+    category: 'posters',
+    image: '',
+  },
+  {
+    id: 'merch3',
+    title: 'EOT Logo Beanie',
+    price: 1800,
+    category: 'accessories',
+    image: '',
+  },
+  {
+    id: 'merch4',
+    title: '"Cosmic Drift" Longsleeve',
+    price: 3200,
+    category: 'clothing',
+    image: '',
+    sizes: ['M', 'L'],
+  },
+];
+
 
 export function MerchPage() {
+  const navigate = useNavigate();
+  const { currentUser } = useSessionStore();
+  const [merchItems, setMerchItems] = useState<MerchItem[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [cart, setCart] = useState<string[]>([]);
+
+  useEffect(() => {
+    // In a real app, you would fetch this data from an API.
+    setMerchItems(mockMerchItems);
+  }, []);
 
   const filteredItems = useMemo(() => {
     if (categoryFilter === 'all') return merchItems;
     return merchItems.filter(item => item.category === categoryFilter);
-  }, [categoryFilter]);
+  }, [categoryFilter, merchItems]);
 
   const getDiscount = () => {
-    if (!currentUser || !currentUser.subscription) return 0;
-    if (currentUser.subscription === 'pro') return 20;
-    if (currentUser.subscription === 'fan') return 15;
-    if (currentUser.subscription === 'lite') return 10;
+    if (!currentUser || !currentUser.subscriptionTier) return 0;
+    if (currentUser.subscriptionTier === 'pro') return 20;
+    if (currentUser.subscriptionTier === 'fan') return 15;
+    if (currentUser.subscriptionTier === 'lite') return 10;
     return 0;
   };
 
@@ -75,10 +128,7 @@ export function MerchPage() {
         {filteredItems.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredItems.map(item => {
-              const hasSubscriberDiscount = currentUser && item.discountPercent;
-              const finalPrice = hasSubscriberDiscount 
-                ? item.price * (1 - (item.discountPercent || 0) / 100)
-                : item.price;
+              const finalPrice = item.price * (1 - discount / 100);
 
               return (
                 <div
@@ -91,10 +141,10 @@ export function MerchPage() {
                     <ShoppingCart className="h-24 w-24 text-primary/30 relative z-10" />
                     
                     {/* Discount Badge */}
-                    {hasSubscriberDiscount && (
+                    {discount > 0 && (
                       <div className="absolute top-2 right-2 z-20">
                         <Badge className="bg-primary text-primary-foreground">
-                          -{item.discountPercent}%
+                          -{discount}%
                         </Badge>
                       </div>
                     )}
@@ -125,7 +175,7 @@ export function MerchPage() {
                       )}
 
                       <div className="flex items-baseline gap-2 mt-3">
-                        {hasSubscriberDiscount ? (
+                        {discount > 0 ? (
                           <>
                             <span className="font-['Bebas_Neue'] text-2xl text-primary">
                               {Math.round(finalPrice)}₽
@@ -171,7 +221,7 @@ export function MerchPage() {
             <p className="text-muted-foreground mb-4">
               Lite — 10%, Fan — 15%, Pro — 20% на весь мерч
             </p>
-            <Button className="bg-primary text-primary-foreground hover:bg-accent-secondary">
+            <Button onClick={() => navigate('/pricing')} className="bg-primary text-primary-foreground hover:bg-accent-secondary">
               Оформить подписку
             </Button>
           </div>

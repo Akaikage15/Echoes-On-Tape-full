@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Vote, Lock, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -6,26 +6,99 @@ import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { Label } from '../components/ui/label';
-import { polls, currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import { SubscriptionTier } from '../types';
+
+// Mock data, to be replaced by API calls later
+const mockPolls: Poll[] = [
+  {
+    id: 'poll1',
+    title: 'Какую обложку выбрать для нового релиза "Cosmic Drift"?',
+    description: 'Артист X подготовил два варианта обложки. Помогите нам выбрать лучший!',
+    requiredTier: 'fan',
+    status: 'active',
+    deadline: '2025-12-10T23:59:59Z',
+    options: [
+      { id: 'opt1-1', title: 'Вариант А: Неоновая геометрия' },
+      { id: 'opt1-2', title: 'Вариант Б: Абстрактный пейзаж' },
+    ],
+  },
+  {
+    id: 'poll2',
+    title: 'На какой трек с нового EP "Electric Dreams" снять клип?',
+    description: 'У группы Y вышел мини-альбом. Какой трек заслуживает полноценного видео?',
+    requiredTier: 'pro',
+    status: 'active',
+    deadline: '2025-12-15T23:59:59Z',
+    options: [
+      { id: 'opt2-1', title: 'Sunset Drive' },
+      { id: 'opt2-2', title: 'Midnight City Vibe' },
+      { id: 'opt2-3', title: 'Lost in Pixels' },
+    ],
+  },
+  {
+    id: 'poll3',
+    title: 'Дизайн футболки для нового мерча',
+    description: 'Мы разрабатываем новый дизайн. Какой вам нравится больше?',
+    requiredTier: 'fan',
+    status: 'completed',
+    deadline: '2025-11-10T23:59:59Z',
+    totalVotes: 258,
+    options: [
+      { id: 'opt3-1', title: 'Логотип на груди', votes: 150 },
+      { id: 'opt3-2', title: 'Абстрактный принт на спине', votes: 108 },
+    ],
+  },
+];
+
+interface PollOption {
+  id: string;
+  title: string;
+  votes?: number;
+}
+
+interface Poll {
+  id: string;
+  title: string;
+  description: string;
+  requiredTier: SubscriptionTier;
+  status: 'active' | 'completed';
+  deadline: string;
+  options: PollOption[];
+  totalVotes?: number;
+}
+
 
 export function PollsPage() {
   const navigate = useNavigate();
+  const { currentUser } = useSessionStore();
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [votedPolls, setVotedPolls] = useState<string[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
-  if (!currentUser) {
-    navigate('/pricing');
-    return null;
+  useEffect(() => {
+    // In a real app, you would fetch polls from an API here.
+    // For now, we use mock data.
+    setPolls(mockPolls);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // Redirect if user is not authenticated or doesn't have the required subscription
+    if (!isLoading && (!currentUser || currentUser.subscriptionTier === 'lite' || currentUser.subscriptionTier === 'none')) {
+      navigate('/pricing');
+    }
+  }, [currentUser, isLoading, navigate]);
+
+  if (isLoading || !currentUser) {
+    // You can return a loader here
+    return <div className="min-h-screen py-16 text-center">Загрузка...</div>;
   }
 
-  if (!currentUser.subscription || currentUser.subscription === 'lite') {
-    navigate('/pricing');
-    return null;
-  }
-
-  const canVoteInPoll = (pollTier: string) => {
-    if (currentUser.subscription === 'pro') return true;
-    if (currentUser.subscription === 'fan' && pollTier === 'fan') return true;
+  const canVoteInPoll = (pollTier: SubscriptionTier) => {
+    if (currentUser.subscriptionTier === 'pro') return true;
+    if (currentUser.subscriptionTier === 'fan' && (pollTier === 'fan' || pollTier === 'lite')) return true;
     return false;
   };
 
@@ -42,7 +115,7 @@ export function PollsPage() {
   const activePollsArr = polls.filter(p => p.status === 'active');
   const completedPollsArr = polls.filter(p => p.status === 'completed');
 
-  const renderPoll = (poll: any, showResults: boolean) => {
+  const renderPoll = (poll: Poll, showResults: boolean) => {
     const hasAccess = canVoteInPoll(poll.requiredTier);
     const hasVoted = votedPolls.includes(poll.id) || showResults;
 
@@ -51,8 +124,8 @@ export function PollsPage() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-primary text-primary-foreground">
-                {poll.requiredTier === 'pro' ? 'Pro' : 'Fan'}
+              <Badge className="bg-primary text-primary-foreground capitalize">
+                {poll.requiredTier}
               </Badge>
               {poll.status === 'active' && (
                 <Badge variant="outline" className="gap-1">
@@ -61,7 +134,7 @@ export function PollsPage() {
                 </Badge>
               )}
               {poll.status === 'completed' && (
-                <Badge variant="outline" className="text-success border-success gap-1">
+                <Badge variant="outline" className="text-green-500 border-green-500 gap-1">
                   <CheckCircle className="h-3 w-3" />
                   Завершено
                 </Badge>
@@ -80,9 +153,11 @@ export function PollsPage() {
             {hasVoted ? (
               // Show results
               <div className="space-y-3">
-                {poll.options.map((option: any) => {
-                  const percentage = poll.totalVotes > 0 
-                    ? Math.round((option.votes / poll.totalVotes) * 100) 
+                {poll.options.map((option) => {
+                  const totalVotes = poll.totalVotes || 0;
+                  const optionVotes = option.votes || 0;
+                  const percentage = totalVotes > 0 
+                    ? Math.round((optionVotes / totalVotes) * 100) 
                     : 0;
 
                   return (
@@ -90,7 +165,7 @@ export function PollsPage() {
                       <div className="flex items-center justify-between">
                         <Label className="font-medium">{option.title}</Label>
                         <span className="text-sm text-muted-foreground">
-                          {percentage}% ({option.votes} {option.votes === 1 ? 'голос' : 'голосов'})
+                          {percentage}% ({optionVotes} {optionVotes === 1 ? 'голос' : 'голосов'})
                         </span>
                       </div>
                       <Progress value={percentage} className="h-2" />
@@ -98,7 +173,7 @@ export function PollsPage() {
                   );
                 })}
                 <p className="text-sm text-muted-foreground text-center pt-2">
-                  Всего голосов: {poll.totalVotes}
+                  Всего голосов: {poll.totalVotes || 0}
                 </p>
               </div>
             ) : (
@@ -108,7 +183,7 @@ export function PollsPage() {
                 onValueChange={(value) => setSelectedOptions({ ...selectedOptions, [poll.id]: value })}
                 className="space-y-3"
               >
-                {poll.options.map((option: any) => (
+                {poll.options.map((option) => (
                   <div key={option.id} className="flex items-center space-x-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
                     <RadioGroupItem value={option.id} id={`${poll.id}-${option.id}`} />
                     <Label htmlFor={`${poll.id}-${option.id}`} className="flex-1 cursor-pointer">
@@ -133,7 +208,7 @@ export function PollsPage() {
             <Lock className="h-5 w-5 text-muted-foreground" />
             <div className="flex-1">
               <p className="text-sm">
-                Это голосование доступно для подписчиков {poll.requiredTier === 'pro' ? 'Pro' : 'Fan'}
+                Это голосование доступно для подписчиков с уровнем "{poll.requiredTier}" и выше.
               </p>
             </div>
             <Button size="sm" variant="outline" onClick={() => navigate('/pricing')}>

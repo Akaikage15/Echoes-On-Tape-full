@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, CheckCircle, Clock, XCircle, Music } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
-import { currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
 import {
   Table,
   TableBody,
@@ -16,9 +16,10 @@ import {
 } from '../components/ui/table';
 
 export function SubmitDemoPage() {
+  const { currentUser } = useSessionStore();
   const [formData, setFormData] = useState({
     artistName: '',
-    email: currentUser?.email || '',
+    email: '',
     trackUrl: '',
     genre: '',
     comment: '',
@@ -26,7 +27,13 @@ export function SubmitDemoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  // Mock submitted demos
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({ ...prev, email: currentUser.email }));
+    }
+  }, [currentUser]);
+
+  // Mock submitted demos - to be replaced with API call
   const myDemos = [
     { id: '1', title: 'Night Drive', date: '2024-11-10', status: 'На рассмотрении' },
     { id: '2', title: 'Synthwave Dreams', date: '2024-10-15', status: 'Прослушано' },
@@ -56,20 +63,20 @@ export function SubmitDemoPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'На рассмотрении': return <Clock className="h-4 w-4 text-warning" />;
-      case 'Прослушано': return <CheckCircle className="h-4 w-4 text-info" />;
-      case 'Принято': return <CheckCircle className="h-4 w-4 text-success" />;
-      case 'Отклонено': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'На рассмотрении': return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'Прослушано': return <CheckCircle className="h-4 w-4 text-blue-500" />;
+      case 'Принято': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'Отклонено': return <XCircle className="h-4 w-4 text-red-500" />;
       default: return <Clock className="h-4 w-4" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'На рассмотрении': return 'border-warning text-warning';
-      case 'Прослушано': return 'border-info text-info';
-      case 'Принято': return 'border-success text-success';
-      case 'Отклонено': return 'border-destructive text-destructive';
+      case 'На рассмотрении': return 'border-yellow-500/50 text-yellow-500';
+      case 'Прослушано': return 'border-blue-500/50 text-blue-500';
+      case 'Принято': return 'border-green-500/50 text-green-500';
+      case 'Отклонено': return 'border-red-500/50 text-red-500';
       default: return '';
     }
   };
@@ -86,7 +93,7 @@ export function SubmitDemoPage() {
             <p className="text-lg text-muted-foreground mb-4">
               Отправьте нам свою музыку для возможного подписания на лейбл
             </p>
-            {currentUser?.subscription === 'pro' && (
+            {currentUser?.subscriptionTier === 'pro' && (
               <Badge className="bg-primary text-primary-foreground gap-2">
                 <Music className="h-3 w-3" />
                 Ваше демо в приоритете
@@ -193,7 +200,7 @@ export function SubmitDemoPage() {
                 />
               </div>
 
-              {!currentUser?.subscription && (
+              {!currentUser?.subscriptionTier && (
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <p className="text-sm text-muted-foreground">
                     <strong className="text-foreground">Совет:</strong> Pro-подписчики получают 

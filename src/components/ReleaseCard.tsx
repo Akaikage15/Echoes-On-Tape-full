@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Music, Lock } from 'lucide-react';
 import { Badge } from './ui/badge';
-import { Release } from '../lib/data';
+import { Release } from '../types';
 
 interface ReleaseCardProps {
   release: Release;
@@ -18,7 +18,7 @@ export function ReleaseCard({ release, showExclusiveBadge = false }: ReleaseCard
           <Music className="h-24 w-24 text-primary/40 relative z-10" />
           
           {/* Exclusive Badge */}
-          {showExclusiveBadge && release.hasExclusive && (
+          {showExclusiveBadge && (
             <div className="absolute top-2 right-2 z-20">
               <Badge className="bg-primary text-primary-foreground gap-1">
                 <Lock className="h-3 w-3" />
@@ -26,13 +26,6 @@ export function ReleaseCard({ release, showExclusiveBadge = false }: ReleaseCard
               </Badge>
             </div>
           )}
-          
-          {/* Type Badge */}
-          <div className="absolute top-2 left-2 z-20">
-            <Badge variant="outline" className="bg-background/80 backdrop-blur">
-              {release.type === 'album' ? 'Альбом' : release.type === 'ep' ? 'EP' : 'Сингл'}
-            </Badge>
-          </div>
         </div>
 
         {/* Info */}
@@ -40,8 +33,8 @@ export function ReleaseCard({ release, showExclusiveBadge = false }: ReleaseCard
           <h3 className="font-['Bebas_Neue'] text-xl tracking-wide group-hover:text-primary transition-colors">
             {release.title}
           </h3>
-          <p className="text-sm text-muted-foreground">{release.artist}</p>
-          <p className="text-xs text-muted-foreground">{release.year}</p>
+          <p className="text-sm text-muted-foreground">{release.artist?.name || 'Unknown Artist'}</p>
+          <p className="text-xs text-muted-foreground">{new Date(release.release_date).getFullYear()}</p>
         </div>
       </div>
     </Link>

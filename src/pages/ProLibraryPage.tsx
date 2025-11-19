@@ -1,24 +1,99 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Disc, Music, Video, Download } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { proLibrary, currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import { SubscriptionTier } from '../types';
+
+// Mock data, to be replaced by API calls later
+const mockProLibrary: ProLibraryItem[] = [
+  {
+    id: 'pro1',
+    title: 'Vintage Synth Bass - Serum Presets',
+    artist: 'SynthCtrl',
+    type: 'preset',
+    format: 'FXP',
+    size: '15 MB',
+    releaseDate: '2025-11-15T00:00:00Z',
+  },
+  {
+    id: 'pro2',
+    title: 'Lo-Fi Dreams Sample Pack',
+    artist: 'Echoes On Tape',
+    type: 'sample',
+    format: 'WAV',
+    size: '120 MB',
+    releaseDate: '2025-11-10T00:00:00Z',
+  },
+  {
+    id: 'pro3',
+    title: 'Melodic Techno MIDI Pack',
+    artist: 'Producer Sphere',
+    type: 'midi',
+    format: 'MIDI',
+    size: '5 KB',
+    releaseDate: '2025-11-05T00:00:00Z',
+  },
+  {
+    id: 'pro4',
+    title: 'Advanced Compression Techniques',
+    artist: 'Mixing Academy',
+    type: 'tutorial',
+    format: 'MP4',
+    size: '550 MB',
+    releaseDate: '2025-10-28T00:00:00Z',
+  },
+  {
+    id: 'pro5',
+    title: '808s & Heartbreak: Drum Samples',
+    artist: 'BeatMakers Inc.',
+    type: 'sample',
+    format: 'WAV',
+    size: '88 MB',
+    releaseDate: '2025-10-22T00:00:00Z',
+  },
+];
+
+interface ProLibraryItem {
+  id: string;
+  title: string;
+  artist: string;
+  type: 'sample' | 'preset' | 'midi' | 'tutorial';
+  format: string;
+  size: string;
+  releaseDate: string;
+}
+
 
 export function ProLibraryPage() {
   const navigate = useNavigate();
+  const { currentUser } = useSessionStore();
+  const [proLibrary, setProLibrary] = useState<ProLibraryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
-  if (!currentUser || currentUser.subscription !== 'pro') {
-    navigate('/pricing');
-    return null;
-  }
+  useEffect(() => {
+    // In a real app, you would fetch this data from an API.
+    setProLibrary(mockProLibrary);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.subscriptionTier !== 'pro')) {
+      navigate('/pricing');
+    }
+  }, [currentUser, isLoading, navigate]);
 
   const filteredItems = useMemo(() => {
     if (typeFilter === 'all') return proLibrary;
     return proLibrary.filter(item => item.type === typeFilter);
-  }, [typeFilter]);
+  }, [typeFilter, proLibrary]);
+  
+  if (isLoading || !currentUser) {
+    return <div className="min-h-screen py-16 text-center">Загрузка...</div>;
+  }
 
   const getIcon = (type: string) => {
     switch (type) {

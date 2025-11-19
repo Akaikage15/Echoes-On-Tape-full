@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { User } from 'lucide-react';
-import { Artist } from '../lib/data';
+import { Artist } from '../types';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -21,7 +21,6 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           <h3 className="font-['Bebas_Neue'] text-2xl tracking-wide group-hover:text-primary transition-colors">
             {artist.name}
           </h3>
-          <p className="text-sm text-muted-foreground">{artist.genre}</p>
         </div>
       </div>
     </Link>
