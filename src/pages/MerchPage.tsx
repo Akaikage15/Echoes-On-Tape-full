@@ -5,66 +5,41 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useSessionStore } from '../lib/store';
-import { SubscriptionTier } from '../types';
-
-interface MerchItem {
-  id: string;
-  title: string;
-  price: number;
-  category: 'clothing' | 'accessories' | 'posters';
-  image: string; // Placeholder for image URL
-  sizes?: string[];
-}
-
-const mockMerchItems: MerchItem[] = [
-  {
-    id: 'merch1',
-    title: 'Echoes On Tape - Classic Logo Tee',
-    price: 2500,
-    category: 'clothing',
-    image: '',
-    sizes: ['S', 'M', 'L', 'XL'],
-  },
-  {
-    id: 'merch2',
-    title: '"Meadow Cushion" Album Art Poster',
-    price: 1500,
-    category: 'posters',
-    image: '',
-  },
-  {
-    id: 'merch3',
-    title: 'EOT Logo Beanie',
-    price: 1800,
-    category: 'accessories',
-    image: '',
-  },
-  {
-    id: 'merch4',
-    title: '"Cosmic Drift" Longsleeve',
-    price: 3200,
-    category: 'clothing',
-    image: '',
-    sizes: ['M', 'L'],
-  },
-];
+import { MerchItem } from '../types'; // Imported MerchItem
+import { fetchAllMerchItems } from '../lib/services'; // Imported fetchAllMerchItems
+import { Skeleton } from '../components/ui/skeleton';
 
 
 export function MerchPage() {
   const navigate = useNavigate();
   const { currentUser } = useSessionStore();
   const [merchItems, setMerchItems] = useState<MerchItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [cart, setCart] = useState<string[]>([]);
 
   useEffect(() => {
-    // In a real app, you would fetch this data from an API.
-    setMerchItems(mockMerchItems);
+    const loadMerchItems = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const fetchedMerchItems = await fetchAllMerchItems();
+        setMerchItems(fetchedMerchItems);
+      } catch (err: any) {
+        setError('Не удалось загрузить товары. Попробуйте обновить страницу.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMerchItems();
   }, []);
 
   const filteredItems = useMemo(() => {
     if (categoryFilter === 'all') return merchItems;
-    return merchItems.filter(item => item.category === categoryFilter);
+    return merchItems.filter(item => item.type === categoryFilter);
   }, [categoryFilter, merchItems]);
 
   const getDiscount = () => {
@@ -85,15 +60,55 @@ export function MerchPage() {
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case 'clothing': return 'Одежда';
-      case 'accessories': return 'Аксессуары';
-      case 'posters': return 'Постеры';
+      case 'accessory': return 'Аксессуары';
+      case 'poster': return 'Постеры';
       default: return category;
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="mb-12">
+            <Skeleton className="h-10 w-2/3 mb-4 mx-auto" />
+            <Skeleton className="h-6 w-1/2 mx-auto" />
+          </div>
+
+          <div className="mb-8 flex space-x-4">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-[250px] w-full" />
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="font-['Bebas_Neue'] text-4xl text-destructive">{error}</h1>
+          <Button onClick={() => window.location.reload()} className="mt-4">Повторить</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-16">
-      <div className="container mx-auto px-4 relative z-10"> {/* Added relative z-10 for content over particles */}
+      <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="mb-12">
           <h1 className="font-['Bebas_Neue'] text-5xl md:text-6xl tracking-wide mb-4">
@@ -103,7 +118,7 @@ export function MerchPage() {
             Официальный мерч Echoes On Tape
           </p>
           {discount > 0 && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-md border border-primary/20 rounded-lg"> {/* Liquid Glass */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-md border border-primary/20 rounded-lg">
               <Tag className="h-5 w-5 text-primary" />
               <span className="text-primary font-medium">
                 Ваша скидка подписчика: {discount}%
@@ -118,8 +133,8 @@ export function MerchPage() {
             <TabsList>
               <TabsTrigger value="all">Все</TabsTrigger>
               <TabsTrigger value="clothing">Одежда</TabsTrigger>
-              <TabsTrigger value="accessories">Аксессуары</TabsTrigger>
-              <TabsTrigger value="posters">Постеры</TabsTrigger>
+              <TabsTrigger value="accessory">Аксессуары</TabsTrigger>
+              <TabsTrigger value="poster">Постеры</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -133,12 +148,16 @@ export function MerchPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-card/80 backdrop-blur-md rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col" {/* Liquid Glass */}
+                  className="bg-card/80 backdrop-blur-md rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col"
                 >
                   {/* Image */}
                   <div className="aspect-square bg-secondary flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary" />
-                    <ShoppingCart className="h-24 w-24 text-primary/30 relative z-10" />
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} className="object-cover w-full h-full" />
+                    ) : (
+                      <ShoppingCart className="h-24 w-24 text-primary/30 relative z-10" />
+                    )}
                     
                     {/* Discount Badge */}
                     {discount > 0 && (
@@ -152,7 +171,7 @@ export function MerchPage() {
                     {/* Category Badge */}
                     <div className="absolute top-2 left-2 z-20">
                       <Badge variant="outline" className="bg-background/80 backdrop-blur">
-                        {getCategoryLabel(item.category)}
+                        {getCategoryLabel(item.type)}
                       </Badge>
                     </div>
                   </div>
@@ -213,7 +232,7 @@ export function MerchPage() {
 
         {/* Info */}
         {!currentUser && (
-          <div className="mt-12 p-6 bg-primary/5 backdrop-blur-md border border-primary/20 rounded-lg text-center max-w-2xl mx-auto"> {/* Liquid Glass */}
+          <div className="mt-12 p-6 bg-primary/5 backdrop-blur-md border border-primary/20 rounded-lg text-center max-w-2xl mx-auto">
             <Tag className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="font-['Bebas_Neue'] text-2xl mb-2">
               Подписчики получают скидки
