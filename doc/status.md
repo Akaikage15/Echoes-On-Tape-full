@@ -6,7 +6,7 @@
 **2025-11-19**
 
 *   **Коммит:** `fix(backend): Исправлена ошибка разрешения модуля types в tsconfig.json`
-*   **Описание:** Исправлена ошибка `Cannot find module '../../src/types'` в бэкенде путем добавления `baseUrl` и `paths` в `backend/tsconfig.json`. Это позволяет корректно разрешать пути к корневому каталогу `src/types`.
+*   **Описание:** Исправлена ошибка `Cannot find module '../../src/types'` в бэкенде путем изменения `backend/tsconfig.json` для использования алиаса `@rootTypes` и обновления импорта в `backend/src/utils/exclusives-db.ts`.
 *   **Ветка:** `dev`
 
 ---

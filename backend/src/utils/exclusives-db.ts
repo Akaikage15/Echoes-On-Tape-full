@@ -1,4 +1,4 @@
-import { ExclusiveItem, SubscriptionTier } from '../../src/types'; // Assuming ExclusiveItem and SubscriptionTier are defined in types.ts
+import { ExclusiveItem, SubscriptionTier } from '@rootTypes';
 
 interface BackendExclusiveItem extends Omit<ExclusiveItem, 'src' | 'artwork'> {
   // Omit frontend-specific fields and add backend-specific ones

@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "../../src/types": ["../src/types"]
+      "@rootTypes": ["../src/types"]
     }
   },
   "include": ["src/**/*.ts"],
