@@ -17,11 +17,13 @@ import { SubmitDemoPage } from './pages/SubmitDemoPage';
 import { MerchPage } from './pages/MerchPage';
 import { AboutPage } from './pages/AboutPage';
 import { Toaster } from './components/ui/sonner';
+import { ParticlesBackground } from './components/ParticlesBackground';
 
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen relative">
+        <ParticlesBackground />
         <Header />
         <main className="flex-1">
           <Routes>

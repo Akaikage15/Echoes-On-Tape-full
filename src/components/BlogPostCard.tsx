@@ -21,7 +21,7 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
 
   return (
     <Link to={`/blog/${post.id}`} className="group block">
-      <div className="overflow-hidden rounded-lg bg-card transition-all duration-250 hover:shadow-xl hover:ring-1 hover:ring-primary hover:-translate-y-1">
+      <div className="overflow-hidden rounded-lg bg-card/80 backdrop-blur-md transition-all duration-250 hover:shadow-xl hover:ring-1 hover:ring-primary hover:-translate-y-1">
         {/* Cover Image */}
         <div className="aspect-video bg-secondary flex items-center justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary" />

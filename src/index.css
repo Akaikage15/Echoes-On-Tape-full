@@ -2659,38 +2659,61 @@
 
 :root {
   --font-size: 16px;
-  --background: #0a0a0a;
-  --foreground: #fff;
-  --card: #1a1a1a;
-  --card-foreground: #fff;
-  --popover: #1a1a1a;
-  --popover-foreground: #fff;
-  --primary: #e8b4b8;
-  --primary-foreground: #0a0a0a;
-  --secondary: #2a2a2a;
-  --secondary-foreground: #fff;
-  --muted: #2a2a2a;
-  --muted-foreground: #b8b8b8;
-  --accent: #e8b4b8;
-  --accent-foreground: #0a0a0a;
-  --accent-secondary: #d4a5a5;
-  --success: #7cb342;
-  --error: #e57373;
-  --warning: #ffb74d;
-  --info: #64b5f6;
-  --destructive: #e57373;
-  --destructive-foreground: #fff;
-  --border: #2a2a2a;
-  --input: #2a2a2a;
-  --ring: #e8b4b8;
-  --disabled: #6b6b6b;
+  
+  /* Echoes On Tape Color System */
+  --background: #0A0A0A;
+  --foreground: #FFFFFF;
+  --card: #1A1A1A;
+  --card-foreground: #FFFFFF;
+  --popover: #1A1A1A;
+  --popover-foreground: #FFFFFF;
+  
+  /* Primary Accent - Lavender */
+  --primary: #B19CD9;
+  --primary-foreground: #0A0A0A;
+  
+  /* Secondary */
+  --secondary: #2A2A2A;
+  --secondary-foreground: #FFFFFF;
+  
+  /* Muted */
+  --muted: #2A2A2A;
+  --muted-foreground: #B8B8B8;
+  
+  /* Accent */
+  --accent: #B19CD9;
+  --accent-foreground: #0A0A0A;
+  --accent-secondary: #C0B6F2;
+  
+  /* Status Colors */
+  --success: #7CB342;
+  --error: #E57373;
+  --warning: #FFB74D;
+  --info: #64B5F6;
+  
+  --destructive: #E57373;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Borders */
+  --border: #2A2A2A;
+  --input: #2A2A2A;
+  --ring: #B19CD9;
+  
+  /* Disabled */
+  --disabled: #6B6B6B;
+  
+  /* Font Weights */
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --radius: .5rem;
-  --shadow-sm: 0 2px 8px #e8b4b81a;
-  --shadow-md: 0 4px 16px #e8b4b826;
-  --shadow-lg: 0 8px 32px #e8b4b833;
-  --shadow-xl: 0 16px 48px #e8b4b840;
+  
+  /* Border Radius */
+  --radius: 0.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(177, 156, 217, 0.1);
+  --shadow-md: 0 4px 16px rgba(177, 156, 217, 0.15);
+  --shadow-lg: 0 8px 32px rgba(177, 156, 217, 0.2);
+  --shadow-xl: 0 16px 48px rgba(177, 156, 217, 0.25);
 }
 
 html {
