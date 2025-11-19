@@ -103,6 +103,36 @@ app.get('/api/auth/profile', async (req, res) => {
   }
 });
 
+// Subscriptions (simulated)
+app.post('/api/subscriptions/purchase', authenticateToken, async (req: any, res) => {
+  const { tier } = req.body;
+  const userId = req.user.userId;
+
+  if (!userId || !tier) {
+    return res.status(400).json({ message: 'Требуется User ID и тип подписки' });
+  }
+
+  // In a real app, integrate with payment gateway here
+  // For now, simulate successful payment and update user's subscription
+  
+  // Find user and update their subscription (this is highly simplified)
+  // In a real scenario, you'd update a 'Subscriptions' table.
+  // For this in-memory example, we'll temporarily update the user object
+  const user = await findUserById(userId);
+  if (user) {
+    // This is a placeholder for actual subscription logic
+    // We're simulating updating the user's session data on the backend
+    // In a real system, 'Subscriptions' table would be updated
+    const updatedUser = { ...user, subscriptionTier: tier, subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() };
+    // This doesn't persist beyond server restart, just for demo purposes
+    // console.log(`Simulating subscription for user ${userId} to tier ${tier}.`);
+    return res.status(200).json({ message: `Подписка на уровень "${tier}" успешно оформлена.`, user: { id: updatedUser.id, email: updatedUser.email, name: updatedUser.name, subscriptionTier: tier, subscriptionEndDate: updatedUser.subscriptionEndDate } });
+  } else {
+    return res.status(404).json({ message: 'Пользователь не найден' });
+  }
+});
+
+
 // Releases
 app.get('/api/releases', async (req, res) => {
   const releases = await getAllReleases();
