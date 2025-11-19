@@ -1,5 +1,5 @@
 import apiClient from './api';
-import { BackendArtist, BackendRelease } from '../types';
+import { BackendArtist, BackendRelease, BackendPost } from '../types';
 
 export const fetchAllReleases = async (): Promise<BackendRelease[]> => {
   const response = await apiClient.get<BackendRelease[]>('/releases');
@@ -18,5 +18,15 @@ export const fetchAllArtists = async (): Promise<BackendArtist[]> => {
 
 export const fetchArtistById = async (id: string): Promise<BackendArtist> => {
   const response = await apiClient.get<BackendArtist>(`/artists/${id}`);
+  return response.data;
+};
+
+export const fetchAllPosts = async (): Promise<BackendPost[]> => {
+  const response = await apiClient.get<BackendPost[]>('/posts');
+  return response.data;
+};
+
+export const fetchPostById = async (id: string): Promise<BackendPost> => {
+  const response = await apiClient.get<BackendPost>(`/posts/${id}`);
   return response.data;
 };

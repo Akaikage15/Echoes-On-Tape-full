@@ -54,6 +54,25 @@ export interface Release extends BackendRelease {
   // parsedReleaseDate: Date;
 }
 
+export interface BackendPost {
+  id: string;
+  author_id: string;
+  title: string;
+  content: string;
+  cover_image_url?: string;
+  is_public: boolean;
+  min_tier?: SubscriptionTier;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogPost extends BackendPost {
+  // Frontend-specific fields if any
+  // e.g., author name if joined from backend, or formatted date
+  authorName?: string;
+}
+
+
 export interface Track {
   id: string;
   title: string;
@@ -74,18 +93,6 @@ export interface ExclusiveContent {
   fileSize?: string;
   format?: string;
   artistId: string;
-}
-
-export interface BlogPost {
-  id: string;
-  title: string;
-  coverImage: string;
-  date: string;
-  author: string;
-  preview: string;
-  content: string;
-  isExclusive: boolean;
-  requiredTier?: SubscriptionTier;
 }
 
 export interface Vote {
