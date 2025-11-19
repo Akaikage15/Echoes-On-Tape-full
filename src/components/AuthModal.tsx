@@ -70,7 +70,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80">
         <DialogHeader>
           <DialogTitle className="font-['Bebas_Neue'] text-2xl">
             Добро пожаловать

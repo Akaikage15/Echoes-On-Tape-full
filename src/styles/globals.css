@@ -13,8 +13,8 @@
   --popover: #1A1A1A;
   --popover-foreground: #FFFFFF;
   
-  /* Primary Accent - Dusty Rose */
-  --primary: #E8B4B8;
+  /* Primary Accent - Lavender */
+  --primary: #B19CD9;
   --primary-foreground: #0A0A0A;
   
   /* Secondary */
@@ -26,9 +26,9 @@
   --muted-foreground: #B8B8B8;
   
   /* Accent */
-  --accent: #E8B4B8;
+  --accent: #B19CD9;
   --accent-foreground: #0A0A0A;
-  --accent-secondary: #D4A5A5;
+  --accent-secondary: #C0B6F2;
   
   /* Status Colors */
   --success: #7CB342;
@@ -42,7 +42,7 @@
   /* Borders */
   --border: #2A2A2A;
   --input: #2A2A2A;
-  --ring: #E8B4B8;
+  --ring: #B19CD9;
   
   /* Disabled */
   --disabled: #6B6B6B;
@@ -55,10 +55,10 @@
   --radius: 0.5rem;
   
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(232, 180, 184, 0.1);
-  --shadow-md: 0 4px 16px rgba(232, 180, 184, 0.15);
-  --shadow-lg: 0 8px 32px rgba(232, 180, 184, 0.2);
-  --shadow-xl: 0 16px 48px rgba(232, 180, 184, 0.25);
+  --shadow-sm: 0 2px 8px rgba(177, 156, 217, 0.1);
+  --shadow-md: 0 4px 16px rgba(177, 156, 217, 0.15);
+  --shadow-lg: 0 8px 32px rgba(177, 156, 217, 0.2);
+  --shadow-xl: 0 16px 48px rgba(177, 156, 217, 0.25);
 }
 
 @theme inline {
