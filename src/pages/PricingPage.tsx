@@ -10,35 +10,53 @@ import {
 } from '../components/ui/accordion';
 import { useSessionStore } from '../lib/store';
 import { AuthModal } from '../components/AuthModal';
-import { User } from '../lib/data';
+import { User, SubscriptionTier } from '../types'; // Import User and SubscriptionTier from types
+import { purchaseSubscription } from '../lib/services';
+import { toast } from 'sonner';
 
 export function PricingPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null);
   const navigate = useNavigate();
-  const { isAuthenticated, currentUser, setCurrentUser } = useSessionStore();
+  const { isAuthenticated, currentUser, setCurrentUser, fetchUserProfile } = useSessionStore();
 
-  const handleSelectPlan = (tier: 'lite' | 'fan' | 'pro') => {
+  const handleSelectPlan = async (tier: SubscriptionTier) => {
     if (!isAuthenticated) {
       setAuthModalOpen(true);
-    } else {
-      // Simulate payment flow and subscription update
-      alert(`Симуляция успешной подписки на тариф ${tier}.`);
+      return;
+    }
+
+    if (currentUser?.subscriptionTier === tier) {
+      toast.info(`Вы уже подписаны на тариф "${tier}".`);
+      return;
+    }
+
+    setLoadingTier(tier);
+    try {
+      const response = await purchaseSubscription(tier);
+      // Backend's purchaseSubscription is simplified and returns a basic user object.
+      // We should ideally re-fetch the full user profile or update the store more comprehensively.
+      // For now, we'll just update the current user's subscription tier and end date directly.
       const updatedUser: User = {
         ...currentUser!,
-        subscription: {
-          tier: tier,
-          status: 'active',
-        },
+        subscriptionTier: response.user.subscriptionTier,
+        subscriptionEndDate: response.user.subscriptionEndDate,
       };
       setCurrentUser(updatedUser);
+      toast.success(response.message);
       navigate('/account');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || `Не удалось оформить подписку на тариф "${tier}".`);
+      console.error(err);
+    } finally {
+      setLoadingTier(null);
     }
   };
 
   const tiers = [
     {
       name: 'Lite',
-      id: 'lite',
+      id: 'lite' as SubscriptionTier,
       price: 200,
       description: 'Базовый доступ к эксклюзивному контенту',
       features: [
@@ -54,7 +72,7 @@ export function PricingPage() {
     },
     {
       name: 'Fan',
-      id: 'fan',
+      id: 'fan' as SubscriptionTier,
       price: 500,
       description: 'Полный фан-опыт с максимальным погружением',
       popular: true,
@@ -71,7 +89,7 @@ export function PricingPage() {
     },
     {
       name: 'Pro',
-      id: 'pro',
+      id: 'pro' as SubscriptionTier,
       price: 1500,
       description: 'Для музыкантов и продюсеров',
       features: [
@@ -174,15 +192,17 @@ export function PricingPage() {
               </ul>
 
               <Button
-                onClick={() => handleSelectPlan(tier.id as 'lite' | 'fan' | 'pro')}
+                onClick={() => handleSelectPlan(tier.id)}
                 className={`w-full ${
                   tier.popular
                     ? 'bg-primary text-primary-foreground hover:bg-accent-secondary'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 }`}
-                disabled={currentUser?.subscription?.tier === tier.id}
+                disabled={currentUser?.subscriptionTier === tier.id || loadingTier === tier.id}
               >
-                {currentUser?.subscription?.tier === tier.id
+                {loadingTier === tier.id
+                  ? 'Обработка...'
+                  : currentUser?.subscriptionTier === tier.id
                   ? 'Текущий тариф'
                   : 'Выбрать'}
               </Button>

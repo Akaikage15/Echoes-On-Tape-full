@@ -1,5 +1,5 @@
 import apiClient from './api';
-import { BackendArtist, BackendRelease, BackendPost } from '../types';
+import { BackendArtist, BackendRelease, BackendPost, BackendUser, SubscriptionTier } from '../types';
 
 export const fetchAllReleases = async (): Promise<BackendRelease[]> => {
   const response = await apiClient.get<BackendRelease[]>('/releases');
@@ -28,5 +28,15 @@ export const fetchAllPosts = async (): Promise<BackendPost[]> => {
 
 export const fetchPostById = async (id: string): Promise<BackendPost> => {
   const response = await apiClient.get<BackendPost>(`/posts/${id}`);
+  return response.data;
+};
+
+interface PurchaseSubscriptionResponse {
+  message: string;
+  user: BackendUser & { subscriptionTier: SubscriptionTier, subscriptionEndDate: string };
+}
+
+export const purchaseSubscription = async (tier: SubscriptionTier): Promise<PurchaseSubscriptionResponse> => {
+  const response = await apiClient.post<PurchaseSubscriptionResponse>('/subscriptions/purchase', { tier });
   return response.data;
 };
