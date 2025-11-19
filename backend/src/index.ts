@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { findUserByEmail, createUser, findUserById } from './utils/db';
+import { getAllReleases, getReleaseById, getAllArtists, getArtistById } from './utils/releases-db';
 import { JWT_SECRET, PORT } from './utils/config';
 
 const app = express();
@@ -10,6 +11,21 @@ const port = PORT;
 
 app.use(cors());
 app.use(express.json());
+
+// Auth Middleware (simple example for demonstration)
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
 
 // --- API Routes ---
 
@@ -87,11 +103,33 @@ app.get('/api/auth/profile', async (req, res) => {
 });
 
 // Releases
-app.get('/api/releases', (req, res) => {
-  res.status(200).json([]); // Пример ответа
+app.get('/api/releases', async (req, res) => {
+  const releases = await getAllReleases();
+  res.status(200).json(releases);
 });
-app.get('/api/releases/:id', (req, res) => {
-  res.status(200).json({}); // Пример ответа
+
+app.get('/api/releases/:id', async (req, res) => {
+  const release = await getReleaseById(req.params.id);
+  if (release) {
+    res.status(200).json(release);
+  } else {
+    res.status(404).json({ message: 'Релиз не найден' });
+  }
+});
+
+// Artists
+app.get('/api/artists', async (req, res) => {
+  const artists = await getAllArtists();
+  res.status(200).json(artists);
+});
+
+app.get('/api/artists/:id', async (req, res) => {
+  const artist = await getArtistById(req.params.id);
+  if (artist) {
+    res.status(200).json(artist);
+  } else {
+    res.status(404).json({ message: 'Артист не найден' });
+  }
 });
 
 

@@ -5,6 +5,10 @@
 ---
 **2025-11-19**
 
+*   **Коммит:** `feat(backend): P0.2 - Implement releases and artists API`
+*   **Описание:** Завершение части задачи P0.2. Реализованы эндпоинты API для сущностей `Releases` и `Artists`: `/api/releases` (получение всех релизов), `/api/releases/:id` (получение релиза по ID), `/api/artists` (получение всех артистов), `/api/artists/:id` (получение артиста по ID). Использована in-memory база данных (`utils/releases-db.ts`) для временного хранения данных. Добавлена mock-информация для релизов и артистов.
+*   **Ветка:** `feature/auth-backend`
+
 *   **Коммит:** `feat(frontend): P0.3, P1.1 - Integrate auth API with frontend`
 *   **Описание:** Завершение части задач P0.3 и P1.1. Обновлены компоненты `AuthModal.tsx` и `src/lib/store.ts` для взаимодействия с реальными эндпоинтами бэкенда `/api/auth/register`, `/api/auth/login` и `/api/auth/profile`. Реализовано сохранение и загрузка JWT токена из `localStorage`. Добавлен интерцептор `axios` для автоматического добавления токена в заголовки запросов и обработки ошибок авторизации (401/403). Обновлены типы в `src/types/index.ts` для соответствия API ответам.
 *   **Ветка:** `feature/auth-backend`
