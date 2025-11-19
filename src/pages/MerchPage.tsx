@@ -83,7 +83,7 @@ export function MerchPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-card rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1"
+                  className="bg-card rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col"
                 >
                   {/* Image */}
                   <div className="aspect-square bg-secondary flex items-center justify-center relative overflow-hidden">
@@ -108,41 +108,43 @@ export function MerchPage() {
                   </div>
 
                   {/* Info */}
-                  <div className="p-4 space-y-3">
-                    <h3 className="font-['Bebas_Neue'] text-xl tracking-wide line-clamp-2">
-                      {item.title}
-                    </h3>
+                  <div className="p-4 space-y-3 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-['Bebas_Neue'] text-xl tracking-wide line-clamp-2">
+                        {item.title}
+                      </h3>
 
-                    {item.sizes && (
-                      <div className="flex flex-wrap gap-1">
-                        {item.sizes.map(size => (
-                          <Badge key={size} variant="outline" className="text-xs">
-                            {size}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                      {item.sizes && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {item.sizes.map(size => (
+                            <Badge key={size} variant="outline" className="text-xs">
+                              {size}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
 
-                    <div className="flex items-baseline gap-2">
-                      {hasSubscriberDiscount ? (
-                        <>
-                          <span className="font-['Bebas_Neue'] text-2xl text-primary">
-                            {Math.round(finalPrice)}₽
-                          </span>
-                          <span className="text-sm text-muted-foreground line-through">
+                      <div className="flex items-baseline gap-2 mt-3">
+                        {hasSubscriberDiscount ? (
+                          <>
+                            <span className="font-['Bebas_Neue'] text-2xl text-primary">
+                              {Math.round(finalPrice)}₽
+                            </span>
+                            <span className="text-sm text-muted-foreground line-through">
+                              {item.price}₽
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-['Bebas_Neue'] text-2xl">
                             {item.price}₽
                           </span>
-                        </>
-                      ) : (
-                        <span className="font-['Bebas_Neue'] text-2xl">
-                          {item.price}₽
-                        </span>
-                      )}
+                        )}
+                      </div>
                     </div>
 
                     <Button
                       onClick={() => addToCart(item.id)}
-                      className="w-full gap-2 bg-primary text-primary-foreground hover:bg-accent-secondary"
+                      className="w-full gap-2 bg-primary text-primary-foreground hover:bg-accent-secondary mt-4"
                     >
                       <ShoppingCart className="h-4 w-4" />
                       В корзину
