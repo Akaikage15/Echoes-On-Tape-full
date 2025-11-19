@@ -4,6 +4,7 @@ import { Paywall } from '../components/Paywall';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Lock, Music, Video, Package } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { AudioPlayer } from '../components/AudioPlayer';
 
 interface ExclusiveItem {
   id: string;
@@ -11,6 +12,8 @@ interface ExclusiveItem {
   type: 'track' | 'video' | 'sample_pack' | 'other';
   requiredTier: 'lite' | 'fan' | 'pro';
   description: string;
+  src?: string; // Add optional source for audio/video
+  artwork?: string; // Optional artwork
 }
 
 const mockExclusiveContent: ExclusiveItem[] = [
@@ -20,6 +23,8 @@ const mockExclusiveContent: ExclusiveItem[] = [
     type: 'track',
     requiredTier: 'lite',
     description: 'Ранний доступ к новому треку от LXST MXRCRY. Доступно в высоком качестве.',
+    src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Placeholder audio source
+    artwork: 'https://via.placeholder.com/150/B19CD9/FFFFFF?text=Track',
   },
   {
     id: '2',
@@ -27,6 +32,8 @@ const mockExclusiveContent: ExclusiveItem[] = [
     type: 'video',
     requiredTier: 'fan',
     description: 'Погрузитесь в процесс создания нашего последнего клипа. Только для фанатов!',
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4', // Placeholder video source
+    artwork: 'https://via.placeholder.com/150/C0B6F2/FFFFFF?text=Video',
   },
   {
     id: '3',
@@ -34,6 +41,8 @@ const mockExclusiveContent: ExclusiveItem[] = [
     type: 'sample_pack',
     requiredTier: 'pro',
     description: 'Коллекция уникальных звуков винтажных синтезаторов, записанных в нашей студии.',
+    src: 'https://example.com/sample_pack.zip', // Placeholder download link
+    artwork: 'https://via.placeholder.com/150/B19CD9/FFFFFF?text=Samples',
   },
   {
     id: '4',
@@ -41,6 +50,7 @@ const mockExclusiveContent: ExclusiveItem[] = [
     type: 'other',
     requiredTier: 'lite',
     description: 'Инсайты о процессе написания музыки и создания образов.',
+    artwork: 'https://via.placeholder.com/150/C0B6F2/FFFFFF?text=DevLog',
   },
   {
     id: '5',
@@ -48,15 +58,15 @@ const mockExclusiveContent: ExclusiveItem[] = [
     type: 'video',
     requiredTier: 'pro',
     description: 'Подробный мастер-класс по сведению и мастерингу треков.',
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4', // Another placeholder video source
+    artwork: 'https://via.placeholder.com/150/B19CD9/FFFFFF?text=Masterclass',
   },
 ];
 
 function ExclusiveContentItem({ item }: { item: ExclusiveItem }) {
   const { hasAccess } = useSubscription();
 
-  if (!hasAccess(item.requiredTier)) {
-    return <Paywall requiredTier={item.requiredTier} />;
-  }
+  const accessGranted = hasAccess(item.requiredTier);
 
   const icon = {
     'track': <Music className="h-6 w-6 text-primary" />,
@@ -72,16 +82,26 @@ function ExclusiveContentItem({ item }: { item: ExclusiveItem }) {
         <h3 className="font-['Bebas_Neue'] text-2xl text-primary tracking-wide">{item.title}</h3>
       </div>
       <p className="text-muted-foreground">{item.description}</p>
-      <div className="flex items-center justify-between mt-4">
-        <span className="text-sm text-foreground">Требуемая подписка: {item.requiredTier.toUpperCase()}</span>
-        {/* Здесь могут быть кнопки "Слушать", "Скачать", "Смотреть" */}
-        <Button size="sm">
-          {item.type === 'track' && 'Слушать'}
-          {item.type === 'video' && 'Смотреть'}
-          {item.type === 'sample_pack' && 'Скачать'}
-          {item.type === 'other' && 'Подробнее'}
-        </Button>
-      </div>
+      
+      {accessGranted ? (
+        item.type === 'track' && item.src ? (
+          <AudioPlayer src={item.src} title={item.title} artist="LXST MXRCRY" artwork={item.artwork} />
+        ) : item.type === 'video' && item.src ? (
+          <video controls src={item.src} className="w-full rounded-md mt-4" poster={item.artwork} />
+        ) : item.type === 'sample_pack' && item.src ? (
+          <div className="mt-4">
+            <a href={item.src} download className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-accent-secondary transition-colors">
+              <Package className="h-4 w-4 mr-2" /> Скачать семпл-пак
+            </a>
+          </div>
+        ) : (
+          <div className="mt-4">
+            <Button size="sm">Подробнее</Button>
+          </div>
+        )
+      ) : (
+        <Paywall requiredTier={item.requiredTier} />
+      )}
     </div>
   );
 }
