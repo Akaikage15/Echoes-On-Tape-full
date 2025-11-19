@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { findUserByEmail, createUser, findUserById } from './utils/db';
 import { getAllReleases, getReleaseById, getAllArtists, getArtistById } from './utils/releases-db';
+import { getAllPosts, getPostById } from './utils/posts-db';
 import { JWT_SECRET, PORT } from './utils/config';
 
 const app = express();
@@ -129,6 +130,21 @@ app.get('/api/artists/:id', async (req, res) => {
     res.status(200).json(artist);
   } else {
     res.status(404).json({ message: 'Артист не найден' });
+  }
+});
+
+// Posts
+app.get('/api/posts', async (req, res) => {
+  const posts = await getAllPosts();
+  res.status(200).json(posts);
+});
+
+app.get('/api/posts/:id', async (req, res) => {
+  const post = await getPostById(req.params.id);
+  if (post) {
+    res.status(200).json(post);
+  } else {
+    res.status(404).json({ message: 'Пост не найден' });
   }
 });
 

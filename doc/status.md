@@ -5,6 +5,10 @@
 ---
 **2025-11-19**
 
+*   **Коммит:** `feat(backend): P0.2 - Implement posts API`
+*   **Описание:** Завершение части задачи P0.2. Реализованы эндпоинты API для сущности `Posts`: `/api/posts` (получение всех постов), `/api/posts/:id` (получение поста по ID). Использована in-memory база данных (`utils/posts-db.ts`) для временного хранения данных. Добавлена mock-информация для постов.
+*   **Ветка:** `feature/blog-posts-api`
+
 *   **Коммит:** `feat(frontend): P0.3 - Integrate releases and artists API`
 *   **Описание:** Завершение части задачи P0.3. Интегрированы API для релизов и артистов. Обновлены `src/pages/ReleasesPage.tsx`, `src/pages/ReleaseDetailPage.tsx`, `src/pages/ArtistsPage.tsx`, `src/pages/ArtistDetailPage.tsx` для асинхронной загрузки данных из бэкенда. Создан `src/lib/services.ts` для централизации вызовов API. Удалены моковые данные из `src/lib/data.ts`. Обновлены типы в `src/types/index.ts` для соответствия API ответам. Добавлена обработка состояний загрузки и ошибок.
 *   **Ветка:** `feature/auth-backend`
