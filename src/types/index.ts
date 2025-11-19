@@ -2,11 +2,19 @@
 
 export type SubscriptionTier = 'none' | 'lite' | 'fan' | 'pro';
 
-export interface User {
+export interface BackendUser {
   id: string;
-  name: string;
   email: string;
-  avatar?: string;
+  name?: string;
+  avatar_url?: string;
+}
+
+export interface AuthResponse {
+  user: BackendUser;
+  token: string;
+}
+
+export interface User extends BackendUser {
   subscriptionTier: SubscriptionTier;
   subscriptionEndDate?: string;
   promoCodes?: PromoCode[];
