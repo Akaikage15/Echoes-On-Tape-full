@@ -20,39 +20,44 @@ export interface User extends BackendUser {
   promoCodes?: PromoCode[];
 }
 
-export interface Artist {
+export interface BackendArtist {
   id: string;
   name: string;
-  photo: string;
-  genre: string;
   bio: string;
-  socials: {
-    telegram?: string;
-    instagram?: string;
-    vk?: string;
-  };
+  photo_url: string;
+  social_links: Record<string, string>;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Release {
+export interface Artist extends BackendArtist {
+  // Frontend-specific fields if any, or just extend BackendArtist
+}
+
+export interface BackendRelease {
   id: string;
+  artist_id: string;
   title: string;
-  artist: Artist;
-  cover: string;
-  type: 'single' | 'ep' | 'album';
-  releaseDate: string;
-  genre: string;
+  cover_art_url: string;
+  release_date: string; // YYYY-MM-DD
   description: string;
-  tracks: Track[];
-  isExclusive?: boolean;
-  requiredTier?: SubscriptionTier;
-  yandexMusicUrl?: string;
-  youtubeUrl?: string;
+  streaming_links: Record<string, string>;
+  created_at: string;
+  updated_at: string;
+  // Potentially include nested artist object from backend join
+  artist?: BackendArtist;
+}
+
+export interface Release extends BackendRelease {
+  // Frontend-specific fields if any, or just extend BackendRelease
+  // For example, if we want to parse release_date into a Date object on frontend
+  // parsedReleaseDate: Date;
 }
 
 export interface Track {
   id: string;
   title: string;
-  duration: number;
+  duration: number; // Duration in seconds, from backend
   exclusiveUrl?: string;
   isExclusive?: boolean;
   requiredTier?: SubscriptionTier;

@@ -1,13 +1,21 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ReleaseCard } from '../components/ReleaseCard';
-import { artists, Release } from '../lib/data'; // Keep artists for filters for now
-import apiClient from '../lib/api';
+import { Artist, Release, BackendArtist } from '../types';
+import { fetchAllReleases, fetchAllArtists } from '../lib/services';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Skeleton } from '../components/ui/skeleton';
-import { currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
+import { toast } from 'sonner';
+
+// Extend BackendRelease to include the joined artist object and frontend specific fields like 'year'
+interface FrontendRelease extends Release {
+  artist: BackendArtist; // Assuming backend joins artist data
+  year: number; // Derived from release_date
+}
 
 export function ReleasesPage() {
-  const [releases, setReleases] = useState<Release[]>([]);
+  const [releases, setReleases] = useState<FrontendRelease[]>([]);
+  const [artists, setArtists] = useState<BackendArtist[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,25 +23,49 @@ export function ReleasesPage() {
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  const { currentUser } = useSessionStore();
+
   useEffect(() => {
-    const fetchReleases = async () => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        // NOTE: This will currently fail with 501, which is expected.
-        // We are building the frontend structure first.
-        const response = await apiClient.get('/releases');
-        setReleases(response.data);
-        setError(null);
-      } catch (err) {
-        setError('Не удалось загрузить релизы. Сервер пока не реализован.');
-        // Set empty array to show the "not found" message as a fallback
-        setReleases([]); 
+        const [fetchedReleases, fetchedArtists] = await Promise.all([
+          fetchAllReleases(),
+          fetchAllArtists(),
+        ]);
+
+        const releasesWithArtistAndYear: FrontendRelease[] = fetchedReleases.map(release => {
+          const artist = fetchedArtists.find(a => a.id === release.artist_id);
+          if (!artist) {
+            console.warn(`Artist not found for release ${release.title}`);
+            // Provide a fallback artist to avoid breaking if artist_id is missing/invalid
+            return {
+              ...release,
+              artist: { id: '', name: 'Unknown Artist', bio: '', photo_url: '', social_links: {}, created_at: '', updated_at: '' },
+              year: new Date(release.release_date).getFullYear(),
+            };
+          }
+          return {
+            ...release,
+            artist: artist,
+            year: new Date(release.release_date).getFullYear(),
+          };
+        });
+        
+        setReleases(releasesWithArtistAndYear);
+        setArtists(fetchedArtists);
+        
+      } catch (err: any) {
+        setError('Не удалось загрузить данные. Попробуйте обновить страницу.');
+        toast.error('Не удалось загрузить данные релизов и артистов.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReleases();
+    loadData();
   }, []);
 
   const years = useMemo(() => {
@@ -43,9 +75,9 @@ export function ReleasesPage() {
 
   const filteredReleases = useMemo(() => {
     return releases.filter(release => {
-      if (artistFilter !== 'all' && release.artistId !== artistFilter) return false;
+      if (artistFilter !== 'all' && release.artist.id !== artistFilter) return false;
       if (yearFilter !== 'all' && release.year.toString() !== yearFilter) return false;
-      if (typeFilter !== 'all' && release.type !== typeFilter) return false;
+      if (typeFilter !== 'all' && release.type && release.type !== typeFilter) return false; // Assuming 'type' field will be added to backend release
       return true;
     });
   }, [releases, artistFilter, yearFilter, typeFilter]);
@@ -129,6 +161,7 @@ export function ReleasesPage() {
         ) : error ? (
            <div className="text-center py-16">
             <p className="text-lg text-destructive">{error}</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">Повторить</Button>
           </div>
         ) : filteredReleases.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
