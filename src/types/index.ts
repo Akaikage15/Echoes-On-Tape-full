@@ -85,47 +85,38 @@ export interface Track {
 export interface ExclusiveContent {
   id: string;
   title: string;
-  type: 'track' | 'video' | 'sample' | 'preset';
-  thumbnail: string;
-  addedDate: string;
-  requiredTier: SubscriptionTier;
-  fileUrl?: string;
-  fileSize?: string;
-  format?: string;
-  artistId: string;
+  type: 'track' | 'video' | 'sample_pack' | 'other'; // Updated to match backend
+  required_tier: SubscriptionTier | null; // Renamed for consistency
+  description: string;
+  file_url?: string; // Backend source for content
+  preview_image_url?: string; // Backend artwork
+  created_at?: string; // Add created_at
+  updated_at?: string; // Add updated_at
 }
 
-export interface Vote {
-  id: string;
-  question: string;
-  options: VoteOption[];
-  deadline: string;
-  requiredTier: SubscriptionTier;
-  status: 'active' | 'completed';
-  hasVoted?: boolean;
-  userVote?: string;
-}
-
-export interface VoteOption {
+export interface BackendVoteOption {
   id: string;
   label: string;
   image?: string;
   votes: number;
 }
 
-export interface Payment {
+export interface BackendVote {
   id: string;
-  date: string;
-  amount: number;
-  status: 'success' | 'pending' | 'failed';
-  description: string;
+  creator_id: string;
+  question: string;
+  options: BackendVoteOption[];
+  deadline: string;
+  required_tier: SubscriptionTier | 'none';
+  status: 'active' | 'completed';
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface PromoCode {
-  code: string;
-  discount: number;
-  expiresAt: string;
-  isActive: boolean;
+export interface Vote extends BackendVote {
+  hasVoted?: boolean;
+  userVote?: string;
 }
 
 export interface MerchItem {
@@ -138,13 +129,34 @@ export interface MerchItem {
   discount?: number;
 }
 
-export interface Demo {
+export interface BackendProLibraryItem {
   id: string;
-  artistName: string;
+  title: string;
+  type: 'sample_pack' | 'preset_pack' | 'daw_project' | 'masterclass_video' | 'midi_pack';
+  description: string;
+  required_tier: SubscriptionTier;
+  file_url: string;
+  preview_image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendDemo {
+  id: string;
+  user_id: string;
+  artist_name: string;
   email: string;
-  trackUrl: string;
+  track_url: string;
   genre: string;
   comment: string;
-  uploadDate: string;
+  upload_date: string;
   status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Demo extends Omit<BackendDemo, 'artist_name' | 'track_url' | 'upload_date' | 'user_id' | 'created_at' | 'updated_at'> {
+  artistName: string; // Renamed for frontend
+  trackUrl: string; // Renamed for frontend
+  uploadDate: string; // Renamed for frontend
 }

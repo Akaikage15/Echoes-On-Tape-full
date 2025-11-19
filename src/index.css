@@ -574,15 +574,9 @@
     }
   }
 
-  @media (width >= 80rem) {
+  @media (width >= 75rem) { /* 1200px */
     .container {
-      max-width: 80rem;
-    }
-  }
-
-  @media (width >= 96rem) {
-    .container {
-      max-width: 96rem;
+      max-width: 75rem;
     }
   }
 

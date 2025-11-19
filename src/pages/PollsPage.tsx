@@ -1,269 +1,249 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Vote, Lock, CheckCircle, Clock } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
-import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
-import { Label } from '../components/ui/label';
 import { useSessionStore } from '../lib/store';
-import { SubscriptionTier } from '../types';
+import { fetchAllPolls, submitPollVote } from '../lib/services';
+import { Vote, BackendVoteOption } from '../types';
+import { Button } from '../components/ui/button';
+import { Progress } from '../components/ui/progress';
+import { Lock, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Skeleton } from '../components/ui/skeleton';
+import { toast } from 'sonner';
+import { Paywall } from '../components/Paywall';
+import { useSubscription } from '../hooks/useSubscription';
 
-// Mock data, to be replaced by API calls later
-const mockPolls: Poll[] = [
-  {
-    id: 'poll1',
-    title: 'Какую обложку выбрать для нового релиза "Cosmic Drift"?',
-    description: 'Артист X подготовил два варианта обложки. Помогите нам выбрать лучший!',
-    requiredTier: 'fan',
-    status: 'active',
-    deadline: '2025-12-10T23:59:59Z',
-    options: [
-      { id: 'opt1-1', title: 'Вариант А: Неоновая геометрия' },
-      { id: 'opt1-2', title: 'Вариант Б: Абстрактный пейзаж' },
-    ],
-  },
-  {
-    id: 'poll2',
-    title: 'На какой трек с нового EP "Electric Dreams" снять клип?',
-    description: 'У группы Y вышел мини-альбом. Какой трек заслуживает полноценного видео?',
-    requiredTier: 'pro',
-    status: 'active',
-    deadline: '2025-12-15T23:59:59Z',
-    options: [
-      { id: 'opt2-1', title: 'Sunset Drive' },
-      { id: 'opt2-2', title: 'Midnight City Vibe' },
-      { id: 'opt2-3', title: 'Lost in Pixels' },
-    ],
-  },
-  {
-    id: 'poll3',
-    title: 'Дизайн футболки для нового мерча',
-    description: 'Мы разрабатываем новый дизайн. Какой вам нравится больше?',
-    requiredTier: 'fan',
-    status: 'completed',
-    deadline: '2025-11-10T23:59:59Z',
-    totalVotes: 258,
-    options: [
-      { id: 'opt3-1', title: 'Логотип на груди', votes: 150 },
-      { id: 'opt3-2', title: 'Абстрактный принт на спине', votes: 108 },
-    ],
-  },
-];
-
-interface PollOption {
-  id: string;
-  title: string;
-  votes?: number;
+interface PollOptionProps {
+  option: BackendVoteOption;
+  totalVotes: number;
+  hasVoted: boolean;
+  userVoteId?: string;
+  onClick: (optionId: string) => void;
+  pollStatus: 'active' | 'completed';
 }
 
-interface Poll {
-  id: string;
-  title: string;
-  description: string;
-  requiredTier: SubscriptionTier;
-  status: 'active' | 'completed';
-  deadline: string;
-  options: PollOption[];
-  totalVotes?: number;
-}
+function PollOption({ option, totalVotes, hasVoted, userVoteId, onClick, pollStatus }: PollOptionProps) {
+  const percentage = totalVotes === 0 ? 0 : Math.round((option.votes / totalVotes) * 100);
+  const isSelected = userVoteId === option.id;
 
-
-export function PollsPage() {
-  const navigate = useNavigate();
-  const { currentUser } = useSessionStore();
-  const [polls, setPolls] = useState<Poll[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [votedPolls, setVotedPolls] = useState<string[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    // In a real app, you would fetch polls from an API here.
-    // For now, we use mock data.
-    setPolls(mockPolls);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    // Redirect if user is not authenticated or doesn't have the required subscription
-    if (!isLoading && (!currentUser || currentUser.subscriptionTier === 'lite' || currentUser.subscriptionTier === 'none')) {
-      navigate('/pricing');
-    }
-  }, [currentUser, isLoading, navigate]);
-
-  if (isLoading || !currentUser) {
-    // You can return a loader here
-    return <div className="min-h-screen py-16 text-center">Загрузка...</div>;
-  }
-
-  const canVoteInPoll = (pollTier: SubscriptionTier) => {
-    if (currentUser.subscriptionTier === 'pro') return true;
-    if (currentUser.subscriptionTier === 'fan' && (pollTier === 'fan' || pollTier === 'lite')) return true;
-    return false;
-  };
-
-  const handleVote = (pollId: string) => {
-    if (!selectedOptions[pollId]) {
-      alert('Выберите вариант для голосования');
-      return;
-    }
-    
-    setVotedPolls([...votedPolls, pollId]);
-    alert('Ваш голос учтен!');
-  };
-
-  const activePollsArr = polls.filter(p => p.status === 'active');
-  const completedPollsArr = polls.filter(p => p.status === 'completed');
-
-  const renderPoll = (poll: Poll, showResults: boolean) => {
-    const hasAccess = canVoteInPoll(poll.requiredTier);
-    const hasVoted = votedPolls.includes(poll.id) || showResults;
-
-    return (
-      <div key={poll.id} className="bg-card p-6 rounded-lg space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-primary text-primary-foreground capitalize">
-                {poll.requiredTier}
-              </Badge>
-              {poll.status === 'active' && (
-                <Badge variant="outline" className="gap-1">
-                  <Clock className="h-3 w-3" />
-                  До {new Date(poll.deadline).toLocaleDateString('ru-RU')}
-                </Badge>
-              )}
-              {poll.status === 'completed' && (
-                <Badge variant="outline" className="text-green-500 border-green-500 gap-1">
-                  <CheckCircle className="h-3 w-3" />
-                  Завершено
-                </Badge>
-              )}
-            </div>
-            <h3 className="font-['Bebas_Neue'] text-2xl mb-2">
-              {poll.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">{poll.description}</p>
-          </div>
-          <Vote className="h-8 w-8 text-primary flex-shrink-0" />
-        </div>
-
-        {hasAccess ? (
-          <div className="space-y-3">
-            {hasVoted ? (
-              // Show results
-              <div className="space-y-3">
-                {poll.options.map((option) => {
-                  const totalVotes = poll.totalVotes || 0;
-                  const optionVotes = option.votes || 0;
-                  const percentage = totalVotes > 0 
-                    ? Math.round((optionVotes / totalVotes) * 100) 
-                    : 0;
-
-                  return (
-                    <div key={option.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="font-medium">{option.title}</Label>
-                        <span className="text-sm text-muted-foreground">
-                          {percentage}% ({optionVotes} {optionVotes === 1 ? 'голос' : 'голосов'})
-                        </span>
-                      </div>
-                      <Progress value={percentage} className="h-2" />
-                    </div>
-                  );
-                })}
-                <p className="text-sm text-muted-foreground text-center pt-2">
-                  Всего голосов: {poll.totalVotes || 0}
-                </p>
-              </div>
-            ) : (
-              // Show voting form
-              <RadioGroup
-                value={selectedOptions[poll.id]}
-                onValueChange={(value) => setSelectedOptions({ ...selectedOptions, [poll.id]: value })}
-                className="space-y-3"
-              >
-                {poll.options.map((option) => (
-                  <div key={option.id} className="flex items-center space-x-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
-                    <RadioGroupItem value={option.id} id={`${poll.id}-${option.id}`} />
-                    <Label htmlFor={`${poll.id}-${option.id}`} className="flex-1 cursor-pointer">
-                      {option.title}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            )}
-
-            {!hasVoted && poll.status === 'active' && (
-              <Button
-                onClick={() => handleVote(poll.id)}
-                className="w-full bg-primary text-primary-foreground hover:bg-accent-secondary"
-              >
-                Проголосовать
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="p-4 bg-secondary/50 rounded-lg flex items-center gap-3">
-            <Lock className="h-5 w-5 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-sm">
-                Это голосование доступно для подписчиков с уровнем "{poll.requiredTier}" и выше.
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => navigate('/pricing')}>
-              Повысить тариф
-            </Button>
-          </div>
+  return (
+    <div
+      className={`relative p-3 rounded-md border transition-colors cursor-pointer
+        ${hasVoted && isSelected ? 'border-primary ring-2 ring-primary' : 'border-border'}
+        ${hasVoted && !isSelected && pollStatus === 'active' ? 'opacity-50' : ''}
+        ${pollStatus === 'completed' ? 'hover:bg-card/50' : 'hover:bg-card/50'}
+      `}
+      onClick={() => !hasVoted && pollStatus === 'active' && onClick(option.id)}
+    >
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-sm font-medium">{option.label}</span>
+        {hasVoted && (
+          <span className="text-xs text-muted-foreground">
+            {option.votes} голосов ({percentage}%)
+          </span>
         )}
       </div>
-    );
+      {hasVoted && (
+        <Progress value={percentage} className="h-2 w-full" />
+      )}
+      {option.image && (
+        <img src={option.image} alt={option.label} className="w-full h-auto mt-2 rounded-sm" />
+      )}
+      {hasVoted && isSelected && (
+        <div className="absolute top-2 right-2 flex items-center justify-center size-5 rounded-full bg-primary text-primary-foreground">
+          <Check className="size-3" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface PollCardProps {
+  poll: Vote;
+}
+
+function PollCard({ poll }: PollCardProps) {
+  const { currentUser, isAuthenticated } = useSessionStore();
+  const { hasAccess } = useSubscription();
+  const [userVoted, setUserVoted] = useState(poll.hasVoted);
+  const [selectedOption, setSelectedOption] = useState<string | undefined>(poll.userVote);
+  const [currentPoll, setCurrentPoll] = useState(poll);
+  const [submittingVote, setSubmittingVote] = useState(false);
+
+  const totalVotes = currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0);
+  const isPollCompleted = new Date(currentPoll.deadline) < new Date() || currentPoll.status === 'completed';
+
+  const canView = currentPoll.is_public || hasAccess(currentPoll.required_tier);
+  const canVote = isAuthenticated && canView && !userVoted && !isPollCompleted;
+
+  const handleVote = async (optionId: string) => {
+    if (!canVote) return;
+
+    setSubmittingVote(true);
+    try {
+      const updatedPoll = await submitPollVote(currentPoll.id, optionId);
+      setCurrentPoll(updatedPoll); // Update poll with new vote count
+      setUserVoted(true);
+      setSelectedOption(optionId);
+      toast.success('Ваш голос учтен!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Не удалось проголосовать.');
+      console.error(err);
+    } finally {
+      setSubmittingVote(false);
+    }
   };
+
+  return (
+    <div
+      className={`relative bg-card p-6 rounded-lg transition-all hover:shadow-md
+        ${!canView ? 'opacity-50 blur-sm pointer-events-none' : ''}
+      `}
+    >
+      {!canView && <Paywall requiredTier={poll.required_tier} />}
+      
+      <h3 className="font-['Bebas_Neue'] text-2xl mb-4">{currentPoll.question}</h3>
+      
+      <div className="space-y-3">
+        {currentPoll.options.map((option) => (
+          <PollOption
+            key={option.id}
+            option={option}
+            totalVotes={totalVotes}
+            hasVoted={userVoted || isPollCompleted}
+            userVoteId={selectedOption}
+            onClick={handleVote}
+            pollStatus={isPollCompleted ? 'completed' : 'active'}
+          />
+        ))}
+      </div>
+
+      <div className="mt-6 text-sm text-muted-foreground flex justify-between items-center">
+        {isPollCompleted ? (
+          <span>Голосование завершено</span>
+        ) : (
+          <span>Осталось: {Math.ceil((new Date(currentPoll.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} дней</span>
+        )}
+        {!currentPoll.is_public && (
+          <Badge className="bg-primary text-primary-foreground gap-1">
+            <Lock className="size-3" />
+            Для подписчиков
+          </Badge>
+        )}
+      </div>
+
+      {error && <p className="text-destructive mt-4">{error}</p>}
+    </div>
+  );
+}
+
+export function PollsPage() {
+  const [polls, setPolls] = useState<Vote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPolls = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const fetchedPolls = await fetchAllPolls();
+        // Simulate user's past votes if needed, for now just assign to state
+        setPolls(fetchedPolls);
+      } catch (err: any) {
+        setError('Не удалось загрузить голосования. Попробуйте обновить страницу.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPolls();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <Skeleton className="h-10 w-1/2 mx-auto mb-4" />
+            <Skeleton className="h-6 w-1/3 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-card p-6 rounded-lg space-y-4">
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="font-['Bebas_Neue'] text-4xl text-destructive">{error}</h1>
+          <Button onClick={() => window.location.reload()} className="mt-4">Повторить</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const activePolls = polls.filter(p => !new Date(p.deadline).getTime() < Date.now() && p.status === 'active');
+  const completedPolls = polls.filter(p => new Date(p.deadline).getTime() < Date.now() || p.status === 'completed');
 
   return (
     <div className="min-h-screen py-16">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="font-['Bebas_Neue'] text-5xl md:text-6xl tracking-wide mb-4">
+            Голосования
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Ваш голос важен! Участвуйте в жизни лейбла.
+          </p>
+        </div>
+
+        {activePolls.length > 0 && (
           <div className="mb-12">
-            <h1 className="font-['Bebas_Neue'] text-5xl md:text-6xl tracking-wide mb-4">
-              Голосования
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Влияйте на будущее лейбла: выбирайте обложки, треки для клипов и многое другое
+            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide mb-6">
+              Активные голосования
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {activePolls.map(poll => (
+                <PollCard key={poll.id} poll={poll} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {completedPolls.length > 0 && (
+          <div className="mb-12">
+            <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide mb-6">
+              Завершенные голосования
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {completedPolls.map(poll => (
+                <PollCard key={poll.id} poll={poll} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {polls.length === 0 && !loading && !error && (
+          <div className="text-center py-16">
+            <h3 className="font-['Bebas_Neue'] text-3xl mb-4">
+              Пока нет голосований
+            </h3>
+            <p className="text-muted-foreground">
+              Возвращайтесь позже, чтобы принять участие в жизни лейбла!
             </p>
           </div>
-
-          {/* Active Polls */}
-          {activePollsArr.length > 0 && (
-            <div className="mb-12">
-              <h2 className="font-['Bebas_Neue'] text-3xl mb-6">Активные голосования</h2>
-              <div className="space-y-6">
-                {activePollsArr.map(poll => renderPoll(poll, false))}
-              </div>
-            </div>
-          )}
-
-          {/* Completed Polls */}
-          {completedPollsArr.length > 0 && (
-            <div>
-              <h2 className="font-['Bebas_Neue'] text-3xl mb-6">Завершенные голосования</h2>
-              <div className="space-y-6">
-                {completedPollsArr.map(poll => renderPoll(poll, true))}
-              </div>
-            </div>
-          )}
-
-          {activePollsArr.length === 0 && completedPollsArr.length === 0 && (
-            <div className="text-center py-16">
-              <Vote className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-lg text-muted-foreground">Нет активных голосований</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Следите за новостями — скоро появятся новые опросы
-              </p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,11 @@ import jwt from 'jsonwebtoken';
 import { findUserByEmail, createUser, findUserById } from './utils/db';
 import { getAllReleases, getReleaseById, getAllArtists, getArtistById } from './utils/releases-db';
 import { getAllPosts, getPostById } from './utils/posts-db';
+import { getAllExclusives, getExclusiveById } from './utils/exclusives-db';
+import { getAllMerchItems, getMerchItemById } from './utils/merch-db';
+import { getAllPolls, getPollById, submitVote } from './utils/polls-db';
+import { getAllProLibraryItems, getProLibraryItemById } from './utils/pro-library-db';
+import { getAllDemos, getDemoById, createDemo, updateDemoStatus } from './utils/demos-db';
 import { JWT_SECRET, PORT } from './utils/config';
 
 const app = express();
@@ -175,6 +180,130 @@ app.get('/api/posts/:id', async (req, res) => {
     res.status(200).json(post);
   } else {
     res.status(404).json({ message: 'Пост не найден' });
+  }
+});
+
+// Exclusives
+app.get('/api/exclusives', async (req, res) => {
+  const exclusives = await getAllExclusives();
+  res.status(200).json(exclusives);
+});
+
+app.get('/api/exclusives/:id', async (req, res) => {
+  const exclusive = await getExclusiveById(req.params.id);
+  if (exclusive) {
+    res.status(200).json(exclusive);
+  } else {
+    res.status(404).json({ message: 'Эксклюзивный контент не найден' });
+  }
+});
+
+// Merch
+app.get('/api/merch', async (req, res) => {
+  const merchItems = await getAllMerchItems();
+  res.status(200).json(merchItems);
+});
+
+app.get('/api/merch/:id', async (req, res) => {
+  const merchItem = await getMerchItemById(req.params.id);
+  if (merchItem) {
+    res.status(200).json(merchItem);
+  } else {
+    res.status(404).json({ message: 'Товар не найден' });
+  }
+});
+
+// Polls
+app.get('/api/polls', async (req, res) => {
+  const polls = await getAllPolls();
+  res.status(200).json(polls);
+});
+
+app.get('/api/polls/:id', async (req, res) => {
+  const poll = await getPollById(req.params.id);
+  if (poll) {
+    res.status(200).json(poll);
+  } else {
+    res.status(404).json({ message: 'Голосование не найдено' });
+  }
+});
+
+app.post('/api/polls/:id/vote', authenticateToken, async (req: any, res) => {
+  const { id } = req.params;
+  const { optionId } = req.body;
+  const userId = req.user.userId;
+
+  if (!optionId) {
+    return res.status(400).json({ message: 'ID опции для голосования обязателен' });
+  }
+
+  // In a real application, you'd check if the user has already voted
+  // and if they meet the required tier, and persist the vote.
+  const updatedPoll = await submitVote(id, optionId);
+
+  if (updatedPoll) {
+    res.status(200).json({ message: 'Голос успешно учтен', poll: updatedPoll });
+  } else {
+    res.status(404).json({ message: 'Голосование или опция не найдены' });
+  }
+});
+
+// Pro Library
+app.get('/api/pro-library', async (req, res) => {
+  const proLibraryItems = await getAllProLibraryItems();
+  res.status(200).json(proLibraryItems);
+});
+
+app.get('/api/pro-library/:id', async (req, res) => {
+  const proLibraryItem = await getProLibraryItemById(req.params.id);
+  if (proLibraryItem) {
+    res.status(200).json(proLibraryItem);
+  } else {
+    res.status(404).json({ message: 'Элемент PRO-библиотеки не найден' });
+  }
+});
+
+// Demos
+app.get('/api/demos', authenticateToken, async (req, res) => {
+  const demos = await getAllDemos();
+  // In a real app, filter by user_id for regular users, or show all for admin
+  res.status(200).json(demos);
+});
+
+app.get('/api/demos/:id', authenticateToken, async (req, res) => {
+  const demo = await getDemoById(req.params.id);
+  if (demo) {
+    res.status(200).json(demo);
+  } else {
+    res.status(404).json({ message: 'Демо не найдено' });
+  }
+});
+
+app.post('/api/demos', authenticateToken, async (req: any, res) => {
+  const { artist_name, email, track_url, genre, comment } = req.body;
+  const user_id = req.user.userId;
+
+  if (!artist_name || !email || !track_url || !genre) {
+    return res.status(400).json({ message: 'Необходимо заполнить все обязательные поля' });
+  }
+
+  const newDemo = await createDemo({ user_id, artist_name, email, track_url, genre, comment, upload_date: new Date().toISOString() });
+  res.status(201).json({ message: 'Демо успешно отправлено', demo: newDemo });
+});
+
+app.put('/api/demos/:id/status', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  // In a real app, check for admin role
+  if (!['pending', 'reviewed', 'accepted', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Неверный статус' });
+  }
+
+  const updatedDemo = await updateDemoStatus(id, status);
+  if (updatedDemo) {
+    res.status(200).json({ message: 'Статус демо обновлен', demo: updatedDemo });
+  } else {
+    res.status(404).json({ message: 'Демо не найдено' });
   }
 });
 
