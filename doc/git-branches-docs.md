@@ -16,6 +16,11 @@
 
 Здесь будет документироваться каждая новая ветка, созданная для реализации определенного блока задач.
 
+### `feature/subscription-purchase`
+- **Назначение:** Реализация имитации покупки подписки на бэкенде и интеграция ее с фронтендом на странице `PricingPage`.
+- **Задачи:** P1.1 (backend simulated purchase, frontend integration on PricingPage).
+- **Статус:** Завершена и слита в `dev`.
+
 ### `feature/blog-posts-api`
 - **Назначение:** Реализация бэкенда API для блог-постов и интеграция их с фронтендом.
 - **Задачи:** P0.2 (posts API), P0.3 (integration of posts API on frontend).
