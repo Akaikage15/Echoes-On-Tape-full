@@ -16,6 +16,11 @@
 
 Здесь будет документироваться каждая новая ветка, созданная для реализации определенного блока задач.
 
+### `feature/blog-posts-api`
+- **Назначение:** Реализация бэкенда API для блог-постов и интеграция их с фронтендом.
+- **Задачи:** P0.2 (posts API), P0.3 (integration of posts API on frontend).
+- **Статус:** Завершена и слита в `dev`.
+
 ### `feature/auth-backend`
 - **Назначение:** Реализация бэкенда для аутентификации (регистрация, логин, профиль) и интеграция API релизов и артистов с фронтендом.
 - **Задачи:** P0.2 (auth, releases, artists API), P0.3 (integration of auth, releases, artists API on frontend), P1.1 (integration of auth forms).
