@@ -63,4 +63,7 @@
 - **Задачи:** P3.1.2 (Система голосований - фронтенд).
 ### `feature/pro-library-storage`
 - **Назначение:** Настройка файлового хранилища (S3/Yandex Object Storage) для профессиональных материалов (ProLibraryPage.tsx).
+### `feature/pro-library-frontend`
+- **Назначение:** Реализация UI для каталога с фильтрацией и скачиванием (ProLibraryPage.LibraryPage.tsx).
+- **Задачи:** P3.2.2 (PRO-библиотека - фронтенд).
 - **Статус:** `merged`
