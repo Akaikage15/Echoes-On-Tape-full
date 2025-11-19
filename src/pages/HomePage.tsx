@@ -7,6 +7,7 @@ import { ArtistCard } from '../components/ArtistCard';
 import { BlogPostCard } from '../components/BlogPostCard';
 import { fetchAllReleases, fetchAllArtists, fetchAllPosts } from '../lib/services';
 import { BackendRelease, BackendArtist, BackendPost } from '../types';
+import { ParticlesBackground } from '../components/ParticlesBackground';
 
 export function HomePage() {
   const [releases, setReleases] = useState<BackendRelease[]>([]);
@@ -41,6 +42,7 @@ export function HomePage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">
+        <ParticlesBackground />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
