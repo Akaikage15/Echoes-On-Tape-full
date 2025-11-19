@@ -7,6 +7,8 @@ export interface BackendUser {
   email: string;
   name?: string;
   avatar_url?: string;
+  subscriptionTier?: SubscriptionTier;
+  subscriptionEndDate?: string;
 }
 
 export interface AuthResponse {

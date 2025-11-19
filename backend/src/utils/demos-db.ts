@@ -1,4 +1,4 @@
-import { Demo } from '../../src/types'; // Import Demo interface
+import { Demo } from '@rootTypes';
 
 export interface BackendDemo {
   id: string;

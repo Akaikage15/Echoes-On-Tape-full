@@ -1,4 +1,4 @@
-import { MerchItem } from '../../src/types'; // Assuming MerchItem is defined in types.ts
+import { MerchItem } from '@rootTypes';
 
 interface BackendMerchItem extends MerchItem {
   created_at: string;

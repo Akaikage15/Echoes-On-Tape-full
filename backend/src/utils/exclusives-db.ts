@@ -1,17 +1,6 @@
-import { ExclusiveItem, SubscriptionTier } from '@rootTypes';
+import { ExclusiveContent, SubscriptionTier } from '@rootTypes';
 
-interface BackendExclusiveItem extends Omit<ExclusiveItem, 'src' | 'artwork'> {
-  // Omit frontend-specific fields and add backend-specific ones
-  id: string;
-  title: string;
-  type: 'track' | 'video' | 'sample_pack' | 'other';
-  required_tier: SubscriptionTier | null; // Renamed for backend consistency
-  description: string;
-  file_url?: string; // Backend source for content
-  preview_image_url?: string; // Backend artwork
-  created_at: string;
-  updated_at: string;
-}
+interface BackendExclusiveItem extends ExclusiveContent {}
 
 let exclusives: BackendExclusiveItem[] = [
   {

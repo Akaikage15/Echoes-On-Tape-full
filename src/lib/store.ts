@@ -24,11 +24,10 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   setCurrentUser: (backendUser) => {
     if (backendUser) {
-      // For now, setting default subscription data. This should come from a real profile endpoint later.
       const user: User = {
         ...backendUser,
-        subscriptionTier: 'none' as SubscriptionTier, // Default
-        subscriptionEndDate: undefined,
+        subscriptionTier: backendUser.subscriptionTier || 'none',
+        subscriptionEndDate: backendUser.subscriptionEndDate,
       };
       set({ currentUser: user, isAuthenticated: true });
     } else {

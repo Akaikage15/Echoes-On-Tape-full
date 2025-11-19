@@ -159,7 +159,7 @@ export function HomePage() {
       </section>
 
       {/* Blog Preview */}
-      <section className="py-16 bg-background relative z-10">
+      <section className="py-16 bg-card/50 backdrop-blur-md relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide">

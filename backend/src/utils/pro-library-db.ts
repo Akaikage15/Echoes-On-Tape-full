@@ -1,4 +1,4 @@
-import { SubscriptionTier } from '../../src/types'; // Import SubscriptionTier
+import { SubscriptionTier } from '@rootTypes';
 
 export interface BackendProLibraryItem {
   id: string;

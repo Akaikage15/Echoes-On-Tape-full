@@ -1,6 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
+import { SubscriptionTier } from '@rootTypes';
 
 // Simplified in-memory "database" for users
 interface User {
@@ -9,6 +10,8 @@ interface User {
   password_hash: string;
   name?: string;
   avatar_url?: string;
+  subscriptionTier: SubscriptionTier;
+  subscriptionEndDate?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -25,6 +28,7 @@ export const createUser = async (email: string, password_hash: string, name?: st
     email,
     password_hash,
     name,
+    subscriptionTier: 'none',
     created_at: new Date(),
     updated_at: new Date(),
   };

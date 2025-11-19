@@ -147,10 +147,10 @@ export function PricingPage() {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative rounded-lg p-8 ${
+              className={`relative rounded-lg p-8 backdrop-blur-md ${
                 tier.popular
-                  ? 'bg-gradient-to-b from-primary/10 to-card ring-2 ring-primary'
-                  : 'bg-card'
+                  ? 'bg-gradient-to-b from-primary/10 to-card/80 ring-2 ring-primary'
+                  : 'bg-card/80'
               } transition-all hover:shadow-lg`}
             >
               {tier.popular && (

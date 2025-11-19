@@ -88,7 +88,7 @@ export function AboutPage() {
               {team.map((member, index) => {
                 const Icon = member.icon;
                 return (
-                  <div key={index} className="bg-card/80 backdrop-blur-md p-6 rounded-lg text-center"> {/* Liquid Glass */}
+                  <div key={index} className="bg-card/80 backdrop-blur-md p-6 rounded-lg text-center">
                     <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary">
                       <Icon className="h-10 w-10 text-primary" />
                     </div>
@@ -112,7 +112,7 @@ export function AboutPage() {
                   href="https://t.me/echoesontape"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors" {/* Liquid Glass */}
+                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors"
                 >
                   <Send className="h-5 w-5 text-primary" />
                   <div>
@@ -124,7 +124,7 @@ export function AboutPage() {
                   href="https://instagram.com/echoesontape"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors" {/* Liquid Glass */}
+                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors"
                 >
                   <Instagram className="h-5 w-5 text-primary" />
                   <div>
@@ -136,7 +136,7 @@ export function AboutPage() {
                   href="https://music.youtube.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors" {/* Liquid Glass */}
+                  className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg hover:bg-card/80 transition-colors"
                 >
                   <Youtube className="h-5 w-5 text-primary" />
                   <div>
@@ -144,7 +144,7 @@ export function AboutPage() {
                     <p className="text-sm text-muted-foreground">Echoes On Tape</p>
                   </div>
                 </a>
-                <div className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg"> {/* Liquid Glass */}
+                <div className="flex items-center gap-3 p-4 bg-card/80 backdrop-blur-md rounded-lg">
                   <Mail className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Email</p>
@@ -227,7 +227,7 @@ export function AboutPage() {
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="bg-card/80 backdrop-blur-md rounded-lg px-6 border-0" {/* Liquid Glass */}
+                  className="bg-card/80 backdrop-blur-md rounded-lg px-6 border-0"
                 >
                   <AccordionTrigger className="text-left hover:no-underline">
                     <span className="font-medium">{faq.question}</span>

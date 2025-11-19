@@ -39,21 +39,50 @@ export function BlogPage() {
     if (!posts.length) return [];
 
     const publicPosts = posts.filter(post => post.is_public);
-    const exclusivePosts = posts.filter(post => !post.is_public);
+    const allExclusivePosts = posts.filter(post => !post.is_public);
+
+    // Filter exclusive posts based on current user's subscription tier
+    const accessibleExclusivePosts = allExclusivePosts.filter(post => {
+      if (!currentUser) return false; // If not logged in, no exclusive posts are accessible
+
+      const userTier = currentUser.subscriptionTier;
+      const postMinTier = post.min_tier;
+
+      if (!postMinTier) {
+        return true; // Exclusive but no specific tier, accessible if logged in
+      }
+
+      switch (postMinTier) {
+        case 'lite':
+          return userTier === 'lite' || userTier === 'fan' || userTier === 'pro';
+        case 'fan':
+          return userTier === 'fan' || userTier === 'pro';
+        case 'pro':
+          return userTier === 'pro';
+        default:
+          return false;
+      }
+    });
 
     if (filter === 'exclusive') {
-      if (!currentUser) return []; // If not logged in, no exclusive posts are shown
-      return exclusivePosts.filter(post => {
-        if (!post.min_tier) return true; // Exclusive but no specific tier, assume accessible if logged in
-        if (currentUser.subscriptionTier === 'pro') return true;
-        if (currentUser.subscriptionTier === 'fan' && post.min_tier !== 'pro') return true;
-        if (currentUser.subscriptionTier === 'lite' && post.min_tier === 'lite') return true;
-        return false;
-      });
+      // If filter is 'exclusive', only show exclusive posts the user has access to
+      return accessibleExclusivePosts;
+    } else { // filter === 'all'
+      // If filter is 'all', show all public posts AND exclusive posts the user has access to
+      // Ensure no duplicates if a post could theoretically be both public and exclusive (though 'is_public: true' and 'min_tier' usually conflict)
+      const combinedPosts = [...publicPosts, ...accessibleExclusivePosts];
+      const uniquePosts = Array.from(new Set(combinedPosts.map(post => post.id)))
+                            .map(id => combinedPosts.find(post => post.id === id)!);
+      return uniquePosts;
     }
-    return [...publicPosts, ...exclusivePosts]; // Show all if filter is 'all'
   }, [filter, posts, currentUser]);
 
+
+  const handleFilterChange = (value: string) => {
+    if (value === 'all' || value === 'exclusive') {
+      setFilter(value as 'all' | 'exclusive');
+    }
+  };
 
   if (loading) {
     return (
@@ -103,7 +132,7 @@ export function BlogPage() {
 
         {/* Filter */}
         <div className="mb-8">
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'exclusive')}>
+          <Tabs value={filter} onValueChange={handleFilterChange}>
             <TabsList>
               <TabsTrigger value="all">Все посты</TabsTrigger>
               <TabsTrigger value="exclusive">Только для подписчиков</TabsTrigger>
@@ -115,7 +144,7 @@ export function BlogPage() {
         {filteredPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredPosts.map(post => (
-              <BlogPostCard key={post.id} post={post} showExclusiveBadge={!post.is_public && (!currentUser || !filteredPosts.includes(post))} />
+              <BlogPostCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
