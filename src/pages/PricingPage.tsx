@@ -8,25 +8,37 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../components/ui/accordion';
-import { currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
 import { AuthModal } from '../components/AuthModal';
+import { User } from '../lib/data';
 
 export function PricingPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, currentUser, setCurrentUser } = useSessionStore();
 
-  const handleSelectPlan = (tier: string) => {
-    if (!currentUser) {
+  const handleSelectPlan = (tier: 'lite' | 'fan' | 'pro') => {
+    if (!isAuthenticated) {
       setAuthModalOpen(true);
     } else {
-      // Simulate payment flow
-      alert(`Переход к оплате тарифа ${tier}. В реальном приложении здесь будет интеграция с платежной системой.`);
+      // Simulate payment flow and subscription update
+      alert(`Симуляция успешной подписки на тариф ${tier}.`);
+      const updatedUser: User = {
+        ...currentUser!,
+        subscription: {
+          tier: tier,
+          status: 'active',
+        },
+      };
+      setCurrentUser(updatedUser);
+      navigate('/account');
     }
   };
 
   const tiers = [
     {
       name: 'Lite',
+      id: 'lite',
       price: 200,
       description: 'Базовый доступ к эксклюзивному контенту',
       features: [
@@ -42,6 +54,7 @@ export function PricingPage() {
     },
     {
       name: 'Fan',
+      id: 'fan',
       price: 500,
       description: 'Полный фан-опыт с максимальным погружением',
       popular: true,
@@ -58,6 +71,7 @@ export function PricingPage() {
     },
     {
       name: 'Pro',
+      id: 'pro',
       price: 1500,
       description: 'Для музыкантов и продюсеров',
       features: [
@@ -160,14 +174,15 @@ export function PricingPage() {
               </ul>
 
               <Button
-                onClick={() => handleSelectPlan(tier.name)}
+                onClick={() => handleSelectPlan(tier.id as 'lite' | 'fan' | 'pro')}
                 className={`w-full ${
                   tier.popular
                     ? 'bg-primary text-primary-foreground hover:bg-accent-secondary'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 }`}
+                disabled={currentUser?.subscription?.tier === tier.id}
               >
-                {currentUser?.subscription === tier.name.toLowerCase()
+                {currentUser?.subscription?.tier === tier.id
                   ? 'Текущий тариф'
                   : 'Выбрать'}
               </Button>
