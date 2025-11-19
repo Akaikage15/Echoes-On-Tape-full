@@ -23,7 +23,8 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import { useSessionStore } from '../lib/store';
-import { User as UserType } from '../lib/data';
+import { SubscriptionTier } from '../types';
+import { toast } from 'sonner';
 
 export function AccountPage() {
   const navigate = useNavigate();
@@ -41,24 +42,29 @@ export function AccountPage() {
   };
 
   const handleCancelSubscription = () => {
-    const updatedUser: UserType = {
+    if (!currentUser) return;
+
+    // Simulate canceling the subscription
+    const updatedUser = {
       ...currentUser,
-      subscription: null,
+      subscriptionTier: 'none' as SubscriptionTier,
+      subscriptionEndDate: undefined,
     };
     setCurrentUser(updatedUser);
-    alert('Ваша подписка отменена.');
+    toast.success('Ваша подписка успешно отменена.');
   };
 
-  const getTierLabel = (tier: string) => {
+  const getTierLabel = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'lite': return 'Lite';
       case 'fan': return 'Fan';
       case 'pro': return 'Pro';
+      case 'none': return 'Нет подписки';
       default: return tier;
     }
   };
 
-  const getTierColor = (tier: string) => {
+  const getTierColor = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'pro': return 'bg-primary text-primary-foreground';
       case 'fan': return 'bg-primary/80 text-primary-foreground';
@@ -66,6 +72,8 @@ export function AccountPage() {
       default: return 'bg-secondary text-secondary-foreground';
     }
   };
+
+  const hasSubscription = currentUser.subscriptionTier !== 'none';
 
   return (
     <div className="min-h-screen py-16">
@@ -82,10 +90,10 @@ export function AccountPage() {
                   {currentUser.name}
                 </h1>
                 <p className="text-muted-foreground">{currentUser.email}</p>
-                {currentUser.subscription && (
-                  <Badge className={`mt-2 gap-1 ${getTierColor(currentUser.subscription.tier)}`}>
+                {hasSubscription && (
+                  <Badge className={`mt-2 gap-1 ${getTierColor(currentUser.subscriptionTier)}`}>
                     <Crown className="h-3 w-3" />
-                    Подписка {getTierLabel(currentUser.subscription.tier)}
+                    Подписка {getTierLabel(currentUser.subscriptionTier)}
                   </Badge>
                 )}
               </div>
@@ -120,17 +128,17 @@ export function AccountPage() {
                   <CreditCard className="h-8 w-8 text-primary" />
                 </div>
 
-                {currentUser.subscription ? (
+                {hasSubscription ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
                       <div>
                         <p className="text-sm text-muted-foreground">Тариф</p>
                         <p className="font-['Bebas_Neue'] text-2xl">
-                          {getTierLabel(currentUser.subscription.tier)}
+                          {getTierLabel(currentUser.subscriptionTier)}
                         </p>
                       </div>
-                      <Badge className={getTierColor(currentUser.subscription.tier)}>
-                        {currentUser.subscription.status}
+                      <Badge className={getTierColor(currentUser.subscriptionTier)}>
+                        Активна
                       </Badge>
                     </div>
 

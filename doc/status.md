@@ -5,6 +5,10 @@
 ---
 **2025-11-19**
 
+*   **Коммит:** `feat(frontend): P1.1 - Implement AccountPage subscription management`
+*   **Описание:** Завершение части задачи P1.1. Страница `AccountPage.tsx` обновлена для корректного отображения статуса подписки пользователя из `useSessionStore`. Реализована симулированная функция "отмены подписки", которая сбрасывает `subscriptionTier` и `subscriptionEndDate` в `currentUser`. Обновлены функции `getTierLabel` и `getTierColor` для работы с новым типом подписки. Добавлена обработка `toast` уведомлений.
+*   **Ветка:** `feature/account-page`
+
 *   **Коммит:** `feat(frontend): P1.1 - Integrate simulated subscription purchase on PricingPage`
 *   **Описание:** Завершение части задачи P1.1. Страница `PricingPage.tsx` обновлена для взаимодействия с эндпоинтом бэкенда `/api/subscriptions/purchase`. Реализована логика выбора тарифа: при клике на "Выбрать" авторизованный пользователь отправляет запрос на покупку подписки. После успешного ответа, статус подписки пользователя обновляется в `useSessionStore`. Добавлена обработка состояний загрузки и ошибок, а также `toast` уведомления.
 *   **Ветка:** `feature/subscription-purchase`
