@@ -2,7 +2,26 @@
 
 Backend API для платформы Echoes On Tape, построенный на Express.js + PostgreSQL + Prisma.
 
+## ⚠️ Требования
+
+- **Node.js** 18.x или выше
+- **PostgreSQL** 14.x или выше (обязательно!)
+- **npm** или **yarn**
+
 ## 🚀 Быстрый старт
+
+### 0. Установка PostgreSQL
+
+**Если PostgreSQL не установлен:**
+
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+```
+
+См. подробную инструкцию в [SETUP_DATABASE.md](./SETUP_DATABASE.md)
 
 ### 1. Установка зависимостей
 
