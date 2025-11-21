@@ -806,3 +806,31 @@ router.put('/releases/:id', validateMultiple({
 - ✅ Эндпоинт `/api/polls/:id/vote` работает корректно
 
 ---
+
+
+### Баг 4: Ошибка компиляции в demo.controller.ts
+**Дата:** 21.11.2025  
+**Статус:** Исправлено
+
+**Проблемы:**
+1. Неправильные названия полей: `artistName` вместо `artist_name`, `trackTitle` вместо `track_url`
+2. Функция `updateDemoStatus` принимает 2 параметра (id, status), передавалось 3 (id, status, feedback)
+
+**Решение:**
+- Исправлены названия полей на snake_case согласно интерфейсу `BackendDemo`:
+  * `artist_name` вместо `artistName`
+  * `track_url` вместо `trackTitle`/`fileUrl`
+  * `user_id` вместо `submittedBy`
+  * Добавлены поля: `email`, `upload_date`, `comment`
+- Убран третий параметр `feedback` из вызова `updateDemoStatus`
+- Добавлен комментарий о возможности добавления feedback в будущем
+
+**Файлы обновлены:**
+- `backend/src/controllers/demo.controller.ts` — исправлены названия полей и вызов функции
+
+**Результат:**
+- ✅ Сервер компилируется без ошибок TypeScript
+- ✅ Эндпоинты `/api/demos` работают корректно
+- ✅ Правильная структура данных согласно `BackendDemo`
+
+---
