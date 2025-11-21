@@ -3,6 +3,10 @@
  * Запуск HTTP сервера
  */
 
+// Загрузка переменных окружения ДОЛЖНА быть первой
+import dotenv from 'dotenv';
+dotenv.config();
+
 import app from './app';
 import { PORT } from './utils/config';
 
