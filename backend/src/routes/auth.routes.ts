@@ -21,6 +21,16 @@ router.post('/login', validate(loginSchema, 'body'), (req, res, next) =>
   authController.login(req, res, next)
 );
 
+// POST /api/auth/refresh - обновление access token
+router.post('/refresh', (req, res, next) =>
+  authController.refresh(req, res, next)
+);
+
+// POST /api/auth/logout - выход
+router.post('/logout', (req, res, next) =>
+  authController.logout(req, res, next)
+);
+
 // GET /api/auth/profile (требует авторизации)
 router.get('/profile', authenticateToken, (req, res, next) =>
   authController.getProfile(req, res, next)

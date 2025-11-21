@@ -40,11 +40,23 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       localStorage.setItem('jwt_token', token);
     } else {
       localStorage.removeItem('jwt_token');
+      localStorage.removeItem('refreshToken');
     }
     set({ token });
   },
 
-  logout: () => {
+  logout: async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    // Отправляем запрос на удаление refresh token
+    if (refreshToken) {
+      try {
+        await apiClient.post('/auth/logout', { refreshToken });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+
     get().setToken(null);
     set({ currentUser: null, isAuthenticated: false });
     toast.info('Вы вышли из аккаунта.');

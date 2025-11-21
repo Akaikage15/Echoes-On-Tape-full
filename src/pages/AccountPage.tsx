@@ -140,10 +140,18 @@ export function AccountPage() {
                 )}
               </div>
             </div>
-            <Button variant="outline" onClick={handleLogout} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Выйти
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <Link to="/settings" className="gap-2">
+                  <User className="h-4 w-4" />
+                  Настройки
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Выйти
+              </Button>
+            </div>
           </div>
 
           {/* Tabs */}

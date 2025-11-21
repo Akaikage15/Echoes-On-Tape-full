@@ -31,8 +31,8 @@ export const authenticateToken = (
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    req.user = decoded;
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email?: string };
+    req.user = { userId: decoded.userId };
     next();
   } catch (error) {
     res.sendStatus(403);
