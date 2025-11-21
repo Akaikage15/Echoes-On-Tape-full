@@ -4,6 +4,7 @@ import { Artist, Release, BackendArtist } from '../types';
 import { fetchAllReleases, fetchAllArtists } from '../lib/services';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Skeleton } from '../components/ui/skeleton';
+import { Button } from '../components/ui/button';
 import { useSessionStore } from '../lib/store';
 import { toast } from 'sonner';
 
