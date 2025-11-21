@@ -1,0 +1,205 @@
+// Prisma Schema для Echoes On Tape
+// Документация: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Пользователи платформы
+model User {
+  id                   String         @id @default(uuid())
+  email                String         @unique
+  password_hash        String
+  name                 String?
+  avatar_url           String?
+  subscriptionTier     String         @default("none") // none, lite, fan, pro
+  subscriptionEndDate  DateTime?
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+  
+  // Relations
+  posts                Post[]
+  demos                Demo[]
+  votes                UserVote[]
+  
+  @@map("users")
+}
+
+// Артисты лейбла
+model Artist {
+  id            String    @id @default(uuid())
+  name          String
+  bio           String    @db.Text
+  photo_url     String
+  social_links  Json      @default("{}")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  
+  // Relations
+  releases      Release[]
+  
+  @@map("artists")
+}
+
+// Музыкальные релизы
+model Release {
+  id               String    @id @default(uuid())
+  artist_id        String
+  title            String
+  cover_art_url    String
+  release_date     DateTime  @db.Date
+  description      String    @db.Text
+  type             String?   // album, ep, single
+  streaming_links  Json      @default("{}")
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  
+  // Relations
+  artist           Artist    @relation(fields: [artist_id], references: [id], onDelete: Cascade)
+  exclusives       ExclusiveContent[]
+  
+  @@map("releases")
+}
+
+// Посты в блоге
+model Post {
+  id               String    @id @default(uuid())
+  author_id        String
+  title            String
+  content          String    @db.Text
+  cover_image_url  String?
+  is_public        Boolean   @default(true)
+  min_tier         String?   // lite, fan, pro
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  
+  // Relations
+  author           User      @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  
+  @@map("posts")
+}
+
+// Эксклюзивный контент
+model ExclusiveContent {
+  id                 String    @id @default(uuid())
+  release_id         String?
+  title              String
+  type               String    // track, video, sample_pack, other
+  required_tier      String    // lite, fan, pro
+  description        String    @db.Text
+  file_url           String?
+  preview_image_url  String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  
+  // Relations
+  release            Release?  @relation(fields: [release_id], references: [id], onDelete: SetNull)
+  
+  @@map("exclusive_content")
+}
+
+// Товары мерча
+model MerchItem {
+  id          String    @id @default(uuid())
+  title       String
+  image       String?
+  price       Float
+  type        String    // clothing, accessory, poster
+  sizes       Json?     @default("[]")
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  
+  @@map("merch_items")
+}
+
+// Голосования
+model Poll {
+  id             String       @id @default(uuid())
+  creator_id     String
+  question       String
+  deadline       DateTime
+  required_tier  String       @default("none") // none, lite, fan, pro
+  status         String       @default("active") // active, completed
+  is_public      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  
+  // Relations
+  options        PollOption[]
+  votes          UserVote[]
+  
+  @@map("polls")
+}
+
+// Опции голосования
+model PollOption {
+  id         String     @id @default(uuid())
+  poll_id    String
+  label      String
+  image      String?
+  votes      Int        @default(0)
+  created_at DateTime   @default(now())
+  
+  // Relations
+  poll       Poll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  userVotes  UserVote[]
+  
+  @@map("poll_options")
+}
+
+// Голоса пользователей
+model UserVote {
+  id         String     @id @default(uuid())
+  user_id    String
+  poll_id    String
+  option_id  String
+  created_at DateTime   @default(now())
+  
+  // Relations
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  poll       Poll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  option     PollOption @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, poll_id])
+  @@map("user_votes")
+}
+
+// PRO-библиотека
+model ProLibraryItem {
+  id                 String    @id @default(uuid())
+  title              String
+  type               String    // sample_pack, preset_pack, daw_project, masterclass_video, midi_pack
+  description        String    @db.Text
+  required_tier      String    // lite, fan, pro
+  file_url           String
+  preview_image_url  String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  
+  @@map("pro_library_items")
+}
+
+// Демо-треки от артистов
+model Demo {
+  id           String    @id @default(uuid())
+  user_id      String
+  artist_name  String
+  email        String
+  track_url    String
+  genre        String
+  comment      String?   @db.Text
+  upload_date  DateTime  @default(now())
+  status       String    @default("pending") // pending, reviewed, accepted, rejected
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  
+  // Relations
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("demos")
+}
