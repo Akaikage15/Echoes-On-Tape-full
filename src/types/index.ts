@@ -162,3 +162,11 @@ export interface Demo extends Omit<BackendDemo, 'artist_name' | 'track_url' | 'u
   trackUrl: string; // Renamed for frontend
   uploadDate: string; // Renamed for frontend
 }
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  discount: number;
+  expiresAt: string;
+  used: boolean;
+}

@@ -3,6 +3,7 @@ import { useSessionStore } from '../lib/store';
 import { fetchAllPolls, submitPollVote } from '../lib/services';
 import { Vote, BackendVoteOption } from '../types';
 import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Lock, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -130,7 +131,6 @@ function PollCard({ poll }: PollCardProps) {
         )}
       </div>
 
-      {error && <p className="text-destructive mt-4">{error}</p>}
     </div>
   );
 }
