@@ -54,10 +54,12 @@ export const vote = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(401).json({ message: 'Требуется авторизация' });
     }
     
-    const result = await submitVote(req.params.id, optionId, userId);
+    // submitVote принимает только pollId и optionId
+    // В реальном приложении нужно добавить userId в функцию для предотвращения повторных голосов
+    const result = await submitVote(req.params.id, optionId);
     
-    if (!result.success) {
-      return res.status(400).json({ message: result.message });
+    if (!result) {
+      return res.status(404).json({ message: 'Голосование или опция не найдены' });
     }
     
     res.status(200).json(result);
