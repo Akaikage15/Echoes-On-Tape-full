@@ -49,21 +49,22 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
       return res.status(401).json({ message: 'Требуется авторизация' });
     }
     
-    const { artistName, trackTitle, genre, fileUrl, description } = req.body;
+    const { artist_name, email, track_url, genre, comment } = req.body;
     
-    if (!artistName || !trackTitle || !genre || !fileUrl) {
+    if (!artist_name || !email || !track_url || !genre) {
       return res.status(400).json({ 
-        message: 'artistName, trackTitle, genre и fileUrl обязательны' 
+        message: 'artist_name, email, track_url и genre обязательны' 
       });
     }
     
     const demo = await createDemo({
-      artistName,
-      trackTitle,
+      user_id: userId,
+      artist_name,
+      email,
+      track_url,
       genre,
-      fileUrl,
-      description,
-      submittedBy: userId,
+      comment: comment || '',
+      upload_date: new Date().toISOString(),
     });
     
     res.status(201).json(demo);
@@ -78,13 +79,15 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const updateStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { status, feedback } = req.body;
+    const { status } = req.body;
     
     if (!status) {
       return res.status(400).json({ message: 'status обязателен' });
     }
     
-    const demo = await updateDemoStatus(req.params.id, status, feedback);
+    // updateDemoStatus принимает только id и status
+    // feedback можно добавить в будущем, расширив функцию
+    const demo = await updateDemoStatus(req.params.id, status);
     
     if (!demo) {
       return res.status(404).json({ message: 'Демо не найдено' });
