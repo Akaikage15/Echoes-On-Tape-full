@@ -5,6 +5,7 @@
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
@@ -12,8 +13,12 @@ import { requestLogger } from './middleware/logger.middleware';
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true, // Разрешить отправку cookies
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(requestLogger);
 
 // Health check
