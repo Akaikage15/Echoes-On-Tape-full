@@ -18,7 +18,15 @@ export const validate = (schema: ZodSchema, source: 'body' | 'query' | 'params' 
     try {
       const data = req[source];
       const validated = await schema.parseAsync(data);
-      (req as any)[source] = validated;
+      
+      // Для body можно напрямую присваивать
+      if (source === 'body') {
+        req.body = validated;
+      } else {
+        // Для query и params используем Object.assign для обхода readonly
+        Object.assign(req[source], validated);
+      }
+      
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -87,7 +95,8 @@ export const validateMultiple = (schemas: {
       // Валидация query
       if (schemas.query) {
         try {
-          (req as any).query = await schemas.query.parseAsync(req.query);
+          const validated = await schemas.query.parseAsync(req.query);
+          Object.assign(req.query, validated);
         } catch (error) {
           if (error instanceof ZodError) {
             errors.push(
@@ -103,7 +112,8 @@ export const validateMultiple = (schemas: {
       // Валидация params
       if (schemas.params) {
         try {
-          (req as any).params = await schemas.params.parseAsync(req.params);
+          const validated = await schemas.params.parseAsync(req.params);
+          Object.assign(req.params, validated);
         } catch (error) {
           if (error instanceof ZodError) {
             errors.push(
