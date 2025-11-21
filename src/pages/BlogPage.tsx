@@ -41,41 +41,15 @@ export function BlogPage() {
     const publicPosts = posts.filter(post => post.is_public);
     const allExclusivePosts = posts.filter(post => !post.is_public);
 
-    // Filter exclusive posts based on current user's subscription tier
-    const accessibleExclusivePosts = allExclusivePosts.filter(post => {
-      if (!currentUser) return false; // If not logged in, no exclusive posts are accessible
-
-      const userTier = currentUser.subscriptionTier;
-      const postMinTier = post.min_tier;
-
-      if (!postMinTier) {
-        return true; // Exclusive but no specific tier, accessible if logged in
-      }
-
-      switch (postMinTier) {
-        case 'lite':
-          return userTier === 'lite' || userTier === 'fan' || userTier === 'pro';
-        case 'fan':
-          return userTier === 'fan' || userTier === 'pro';
-        case 'pro':
-          return userTier === 'pro';
-        default:
-          return false;
-      }
-    });
-
     if (filter === 'exclusive') {
-      // If filter is 'exclusive', only show exclusive posts the user has access to
-      return accessibleExclusivePosts;
+      // Показываем ВСЕ эксклюзивные посты (даже если нет доступа)
+      // BlogPostCard сам покажет paywall для недоступных
+      return allExclusivePosts;
     } else { // filter === 'all'
-      // If filter is 'all', show all public posts AND exclusive posts the user has access to
-      // Ensure no duplicates if a post could theoretically be both public and exclusive (though 'is_public: true' and 'min_tier' usually conflict)
-      const combinedPosts = [...publicPosts, ...accessibleExclusivePosts];
-      const uniquePosts = Array.from(new Set(combinedPosts.map(post => post.id)))
-                            .map(id => combinedPosts.find(post => post.id === id)!);
-      return uniquePosts;
+      // Показываем все публичные + все эксклюзивные посты
+      return [...publicPosts, ...allExclusivePosts];
     }
-  }, [filter, posts, currentUser]);
+  }, [filter, posts]);
 
 
   const handleFilterChange = (value: string) => {

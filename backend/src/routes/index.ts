@@ -10,6 +10,11 @@ import releaseRoutes from './release.routes';
 import artistRoutes from './artist.routes';
 import postRoutes from './post.routes';
 import accountRoutes from './account.routes';
+import merchRoutes from './merch.routes';
+import exclusiveRoutes from './exclusive.routes';
+import pollRoutes from './poll.routes';
+import proLibraryRoutes from './pro-library.routes';
+import demoRoutes from './demo.routes';
 
 const router = Router();
 
@@ -20,5 +25,10 @@ router.use('/releases', releaseRoutes);
 router.use('/artists', artistRoutes);
 router.use('/posts', postRoutes);
 router.use('/account', accountRoutes);
+router.use('/merch', merchRoutes);
+router.use('/exclusives', exclusiveRoutes);
+router.use('/polls', pollRoutes);
+router.use('/pro-library', proLibraryRoutes);
+router.use('/demos', demoRoutes);
 
 export default router;
