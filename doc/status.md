@@ -494,6 +494,67 @@
 
 ---
 
+### ✅ 1.2 Рефакторинг архитектуры бэкенда
+**Дата:** 21.11.2025  
+**Ветка:** `dev`  
+**Статус:** Завершено
+
+**Что сделано:**
+
+1. **Создана слоистая архитектура (Layered Architecture):**
+   - ✅ Routes → Controllers → Services → Repositories → Prisma
+   - ✅ Четкое разделение ответственности
+
+2. **Middleware:**
+   - ✅ `auth.middleware.ts` - проверка JWT токена
+   - ✅ `error.middleware.ts` - централизованная обработка ошибок
+   - ✅ `AppError` класс для кастомных ошибок
+
+3. **Services (бизнес-логика):**
+   - ✅ `auth.service.ts` - регистрация, вход, профиль
+   - ✅ `subscription.service.ts` - покупка/отмена подписки
+   - ✅ `release.service.ts` - работа с релизами
+
+4. **Controllers (HTTP обработчики):**
+   - ✅ `auth.controller.ts` - обработка auth запросов
+   - ✅ `subscription.controller.ts` - обработка subscription запросов
+   - ✅ `release.controller.ts` - обработка release запросов
+
+5. **Routes (маршрутизация):**
+   - ✅ `auth.routes.ts` - маршруты аутентификации
+   - ✅ `subscription.routes.ts` - маршруты подписок
+   - ✅ `release.routes.ts` - маршруты релизов
+   - ✅ `index.ts` - главный роутер
+
+6. **Новая структура приложения:**
+   - ✅ `app.ts` - конфигурация Express
+   - ✅ `server.ts` - entry point, запуск сервера
+   - ✅ Graceful shutdown
+
+7. **Документация:**
+   - ✅ `ARCHITECTURE.md` - полное описание архитектуры
+   - ✅ Диаграммы потока данных
+   - ✅ Примеры добавления нового функционала
+
+**Результат:**
+- ✅ Четкое разделение ответственности (SoC)
+- ✅ Легкая тестируемость
+- ✅ Улучшенная поддерживаемость
+- ✅ Готовность к масштабированию
+- ✅ Централизованная обработка ошибок
+
+**Файлы созданы:**
+- `backend/src/middleware/*.ts` (2 файла)
+- `backend/src/services/*.ts` (4 файла)
+- `backend/src/controllers/*.ts` (4 файла)
+- `backend/src/routes/*.ts` (4 файла)
+- `backend/src/app.ts`
+- `backend/src/server.ts`
+- `backend/ARCHITECTURE.md`
+- `backend/package.json` (обновлен)
+
+---
+
 ## Следующие задачи
 
 ---
