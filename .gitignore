@@ -12,3 +12,6 @@ backend/node_modules
 bugs
 
 GEMINI.md\n# Build output\nbuild/\ndist/\n\n# Log files\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n\n# OS-specific\n.DS_Store
+
+# Backend logs
+backend/logs/*.log

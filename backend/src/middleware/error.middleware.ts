@@ -4,6 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { logError } from '../utils/logger';
 
 export class AppError extends Error {
   statusCode: number;
@@ -28,6 +29,12 @@ export const errorHandler = (
   next: NextFunction
 ): void => {
   if (err instanceof AppError) {
+    logError(`AppError: ${err.message}`, {
+      statusCode: err.statusCode,
+      path: req.path,
+      method: req.method,
+    });
+    
     res.status(err.statusCode).json({
       status: 'error',
       message: err.message,
@@ -36,7 +43,8 @@ export const errorHandler = (
   }
 
   // Неожиданные ошибки
-  console.error('Unexpected error:', err);
+  logError('Unexpected error', err);
+  
   res.status(500).json({
     status: 'error',
     message: 'Внутренняя ошибка сервера',
