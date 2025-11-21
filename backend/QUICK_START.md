@@ -50,19 +50,33 @@ PORT=3001
 npm install
 ```
 
-### 5️⃣ Запустить миграции
+**⚠️ Если возникла ошибка ECONNRESET:**
+```bash
+export PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+npm install
+```
+
+См. [INSTALL_PRISMA.md](./INSTALL_PRISMA.md) для подробностей.
+
+### 5️⃣ Сгенерировать Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 6️⃣ Запустить миграции
 
 ```bash
 npm run prisma:migrate
 ```
 
-### 6️⃣ Заполнить БД данными
+### 7️⃣ Заполнить БД данными
 
 ```bash
 npx prisma db seed
 ```
 
-### 7️⃣ Активировать новый код
+### 8️⃣ Активировать новый код
 
 ```bash
 # Переименовать файлы
@@ -70,7 +84,7 @@ mv src/index.ts src/index.old.ts
 mv src/index.new.ts src/index.ts
 ```
 
-### 8️⃣ Запустить сервер
+### 9️⃣ Запустить сервер
 
 ```bash
 npm start
