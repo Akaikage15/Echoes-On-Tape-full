@@ -135,6 +135,8 @@ const ProfileSettings = () => {
             <AvatarUpload 
               currentAvatar={currentUser?.avatar_url}
               onUploadSuccess={(url) => {
+                // Обновляем formData для отображения
+                setFormData(prev => ({ ...prev, avatar_url: url }));
                 toast.success('Аватар обновлён');
               }}
             />

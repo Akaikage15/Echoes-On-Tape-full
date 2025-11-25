@@ -124,8 +124,16 @@ export function AccountPage() {
           {/* Header */}
           <div className="mb-12 flex items-start justify-between">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary">
-                <User className="h-10 w-10 text-primary" />
+              <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary overflow-hidden">
+                {currentUser.avatar_url ? (
+                  <img 
+                    src={`http://localhost:3001${currentUser.avatar_url}`} 
+                    alt={currentUser.name || 'Avatar'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="h-10 w-10 text-primary" />
+                )}
               </div>
               <div>
                 <h1 className="font-['Bebas_Neue'] text-4xl tracking-wide mb-2">
