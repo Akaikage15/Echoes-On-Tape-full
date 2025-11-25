@@ -11,17 +11,20 @@ import { BlogPage } from './pages/BlogPage';
 import { BlogPostPage } from './pages/BlogPostPage';
 import { ExclusivesPage } from './pages/ExclusivesPage';
 import { AccountPage } from './pages/AccountPage';
+import SettingsPage from './pages/settings/SettingsPage';
 import { PollsPage } from './pages/PollsPage';
 import { ProLibraryPage } from './pages/ProLibraryPage';
 import { SubmitDemoPage } from './pages/SubmitDemoPage';
 import { MerchPage } from './pages/MerchPage';
 import { AboutPage } from './pages/AboutPage';
 import { Toaster } from './components/ui/sonner';
+import { ParticlesBackground } from './components/ParticlesBackground';
 
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen relative">
+        <ParticlesBackground />
         <Header />
         <main className="flex-1">
           <Routes>
@@ -35,6 +38,7 @@ export default function App() {
             <Route path="/blog/:id" element={<BlogPostPage />} />
             <Route path="/exclusives" element={<ExclusivesPage />} />
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/polls" element={<PollsPage />} />
             <Route path="/pro-library" element={<ProLibraryPage />} />
             <Route path="/submit-demo" element={<SubmitDemoPage />} />

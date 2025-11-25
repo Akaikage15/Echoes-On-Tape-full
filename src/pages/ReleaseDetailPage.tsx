@@ -2,12 +2,91 @@ import { useParams, Link } from 'react-router-dom';
 import { Music, Download, Lock, Play, ExternalLink, Calendar, Disc } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { ReleaseCard } from '../components/ReleaseCard';
-import { releases, currentUser } from '../lib/data';
+import { Skeleton } from '../components/ui/skeleton';
+import { useEffect, useState } from 'react';
+import { BackendRelease, BackendArtist, SubscriptionTier } from '../types';
+import { fetchReleaseById } from '../lib/services';
+import { useSessionStore } from '../lib/store';
+import { toast } from 'sonner';
+
+// Define a type for Release including the artist data from backend join
+interface ReleaseDetail extends BackendRelease {
+  artist: BackendArtist;
+  // Frontend-specific fields if any
+}
 
 export function ReleaseDetailPage() {
-  const { id } = useParams();
-  const release = releases.find(r => r.id === id);
+  const { id } = useParams<{ id: string }>();
+  const [release, setRelease] = useState<ReleaseDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const { currentUser } = useSessionStore();
+
+  useEffect(() => {
+    if (!id) {
+      setError('ID релиза не указан.');
+      setLoading(false);
+      return;
+    }
+
+    const loadRelease = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const fetchedRelease = await fetchReleaseById(id);
+        // Assuming backend release object already includes the joined artist data
+        setRelease(fetchedRelease as ReleaseDetail);
+      } catch (err: any) {
+        setError('Не удалось загрузить релиз. Возможно, он не существует.');
+        toast.error('Не удалось загрузить релиз.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRelease();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-16 container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-2">
+            <Skeleton className="w-full aspect-square rounded-lg mb-4" />
+            <Skeleton className="h-10 w-full mb-2" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="lg:col-span-3 space-y-6">
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-8 w-1/3" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="font-['Bebas_Neue'] text-4xl text-destructive">{error}</h1>
+          <Link to="/releases">
+            <Button variant="outline">Вернуться к каталогу</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!release) {
     return (
@@ -22,14 +101,13 @@ export function ReleaseDetailPage() {
     );
   }
 
+  // Frontend-specific access logic (simplified for now)
   const hasAccess = currentUser && (
     !release.requiredTier ||
-    (currentUser.subscription === 'pro') ||
-    (currentUser.subscription === 'fan' && release.requiredTier !== 'pro') ||
-    (currentUser.subscription === 'lite' && release.requiredTier === 'lite')
+    (currentUser.subscriptionTier === 'pro') ||
+    (currentUser.subscriptionTier === 'fan' && release.requiredTier !== 'pro') ||
+    (currentUser.subscriptionTier === 'lite' && release.requiredTier === 'lite')
   );
-
-  const otherReleases = releases.filter(r => r.id !== id).slice(0, 3);
 
   return (
     <div className="min-h-screen py-16">
@@ -40,29 +118,32 @@ export function ReleaseDetailPage() {
           <div className="lg:col-span-2">
             <div className="sticky top-24">
               <div className="aspect-square rounded-lg bg-secondary flex items-center justify-center overflow-hidden mb-4">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary" />
-                <Music className="h-48 w-48 text-primary/40 relative z-10" />
+                {release.cover_art_url ? (
+                  <img src={release.cover_art_url} alt={release.title} className="object-cover w-full h-full" />
+                ) : (
+                  <Music className="h-48 w-48 text-primary/40 relative z-10" />
+                )}
               </div>
               
               {/* External Links */}
-              {(release.yandexMusicUrl || release.youtubeMusicUrl) && (
+              {(release.streaming_links?.yandexMusic || release.streaming_links?.youtube) && (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground mb-2">Слушать на:</p>
-                  {release.yandexMusicUrl && (
+                  {release.streaming_links.yandexMusic && (
                     <Button
                       variant="outline"
                       className="w-full justify-start gap-2"
-                      onClick={() => window.open(release.yandexMusicUrl, '_blank')}
+                      onClick={() => window.open(release.streaming_links.yandexMusic, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4" />
                       Яндекс.Музыка
                     </Button>
                   )}
-                  {release.youtubeMusicUrl && (
+                  {release.streaming_links.youtube && (
                     <Button
                       variant="outline"
                       className="w-full justify-start gap-2"
-                      onClick={() => window.open(release.youtubeMusicUrl, '_blank')}
+                      onClick={() => window.open(release.streaming_links.youtube, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4" />
                       YouTube Music
@@ -78,35 +159,38 @@ export function ReleaseDetailPage() {
             {/* Header */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge variant="outline">
+                {/* Assuming 'type' will be part of BackendRelease in the future, or derive it */}
+                {/* <Badge variant="outline">
                   {release.type === 'album' ? 'Альбом' : release.type === 'ep' ? 'EP' : 'Сингл'}
-                </Badge>
-                <Badge variant="outline">{release.genre}</Badge>
+                </Badge> */}
+                {/* Assuming 'genre' will be part of BackendRelease */}
+                {/* <Badge variant="outline">{release.genre}</Badge> */}
               </div>
               
               <h1 className="font-['Bebas_Neue'] text-4xl md:text-6xl tracking-wide">
                 {release.title}
               </h1>
               
-              <Link to={`/artist/${release.artistId}`}>
+              <Link to={`/artist/${release.artist.id}`}>
                 <p className="text-xl text-primary hover:text-accent-secondary transition-colors">
-                  {release.artist}
+                  {release.artist.name}
                 </p>
               </Link>
               
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {new Date(release.releaseDate).toLocaleDateString('ru-RU', {
+                  {new Date(release.release_date).toLocaleDateString('ru-RU', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric'
                   })}
                 </span>
-                <span className="flex items-center gap-1">
+                {/* Assuming tracklist info comes from backend */}
+                {/* <span className="flex items-center gap-1">
                   <Disc className="h-4 w-4" />
                   {release.tracklist.length} {release.tracklist.length === 1 ? 'трек' : 'треков'}
-                </span>
+                </span> */}
               </div>
             </div>
 
@@ -115,8 +199,8 @@ export function ReleaseDetailPage() {
               <p className="text-muted-foreground">{release.description}</p>
             </div>
 
-            {/* Tracklist */}
-            <div className="space-y-4">
+            {/* Tracklist - Currently not part of backend Release object from releases-db.ts */}
+            {/* <div className="space-y-4">
               <h3 className="font-['Bebas_Neue'] text-2xl">Треклист</h3>
               <div className="space-y-2">
                 {release.tracklist.map((track, index) => (
@@ -161,10 +245,10 @@ export function ReleaseDetailPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
-            {/* Exclusive Content Section */}
-            {release.hasExclusive && (
+            {/* Exclusive Content Section - Also depends on tracklist */}
+            {/* {release.hasExclusive && (
               <div className="p-6 rounded-lg bg-gradient-to-br from-primary/10 to-card border border-primary/20">
                 <div className="flex items-start gap-4">
                   <Lock className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
@@ -209,23 +293,11 @@ export function ReleaseDetailPage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 
-        {/* Similar Releases */}
-        {otherReleases.length > 0 && (
-          <div>
-            <h2 className="font-['Bebas_Neue'] text-3xl tracking-wide mb-6">
-              Другие релизы
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {otherReleases.map(rel => (
-                <ReleaseCard key={rel.id} release={rel} showExclusiveBadge={!!currentUser} />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Similar Releases - Removed for now */}
       </div>
     </div>
   );

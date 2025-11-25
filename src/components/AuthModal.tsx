@@ -13,7 +13,8 @@ import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { useSessionStore } from '../lib/store';
 import apiClient from '../lib/api';
-import { User } from '../lib/data';
+import { AuthResponse, BackendUser } from '../types';
+import { toast } from 'sonner';
 
 interface AuthModalProps {
   open: boolean;
@@ -27,35 +28,61 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setCurrentUser } = useSessionStore();
+  const { setCurrentUser, setToken } = useSessionStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      // NOTE: This will currently fail with 501, which is expected.
-      const response = await apiClient.post<User>('/auth/login', { email, password });
-      setCurrentUser(response.data);
+      const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+      const token = response.data.accessToken || response.data.token;
+      if (token) {
+        setToken(token);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
+      }
+      setCurrentUser(response.data.user);
+      toast.success('Вход выполнен успешно!');
       onClose();
-    } catch (err) {
-      setError('Не удалось войти. Проверьте email и пароль.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Не удалось войти. Проверьте email и пароль.');
+      toast.error(err.response?.data?.message || 'Не удалось войти.');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock registration - redirect to pricing
-    onClose();
-    navigate('/pricing');
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register', { email, password, name });
+      const token = response.data.accessToken || response.data.token;
+      if (token) {
+        setToken(token);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
+      }
+      setCurrentUser(response.data.user);
+      toast.success('Регистрация прошла успешно!');
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Не удалось зарегистрироваться. Попробуйте еще раз.');
+      toast.error(err.response?.data?.message || 'Не удалось зарегистрироваться.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[600px] bg-card rounded-lg">
         <DialogHeader>
           <DialogTitle className="font-['Bebas_Neue'] text-2xl">
             Добро пожаловать
@@ -112,6 +139,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
           <TabsContent value="register">
             <form onSubmit={handleRegister} className="space-y-4 mt-4">
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <div className="space-y-2">
                 <Label htmlFor="register-name">Имя</Label>
                 <Input
@@ -122,6 +150,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="bg-secondary border-border"
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -134,6 +163,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="bg-secondary border-border"
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -146,13 +176,15 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="bg-secondary border-border"
+                  disabled={loading}
                 />
               </div>
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-accent-secondary"
+                disabled={loading}
               >
-                Зарегистрироваться
+                {loading ? 'Регистрация...' : 'Зарегистрироваться'}
               </Button>
             </form>
           </TabsContent>

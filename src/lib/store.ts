@@ -1,16 +1,87 @@
 import { create } from 'zustand';
-import { User } from './data'; // We can reuse the existing type
+import apiClient from './api';
+import { BackendUser, User, SubscriptionTier } from '../types';
+import { toast } from 'sonner';
 
 interface SessionState {
   currentUser: User | null;
+  token: string | null;
   isAuthenticated: boolean;
-  setCurrentUser: (user: User | null) => void;
+  setCurrentUser: (user: BackendUser | null) => void;
+  setToken: (token: string | null) => void;
   logout: () => void;
+  fetchUserProfile: () => Promise<void>;
 }
 
-export const useSessionStore = create<SessionState>((set) => ({
+const getInitialToken = (): string | null => {
+  return localStorage.getItem('jwt_token');
+};
+
+export const useSessionStore = create<SessionState>((set, get) => ({
   currentUser: null,
+  token: getInitialToken(),
   isAuthenticated: false,
-  setCurrentUser: (user) => set({ currentUser: user, isAuthenticated: !!user }),
-  logout: () => set({ currentUser: null, isAuthenticated: false }),
+
+  setCurrentUser: (backendUser) => {
+    if (backendUser) {
+      const user: User = {
+        ...backendUser,
+        subscriptionTier: backendUser.subscriptionTier || 'none',
+        subscriptionEndDate: backendUser.subscriptionEndDate,
+      };
+      set({ currentUser: user, isAuthenticated: true });
+    } else {
+      set({ currentUser: null, isAuthenticated: false });
+    }
+  },
+
+  setToken: (token) => {
+    if (token) {
+      localStorage.setItem('jwt_token', token);
+    } else {
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('refreshToken');
+    }
+    set({ token });
+  },
+
+  logout: async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    // Отправляем запрос на удаление refresh token
+    if (refreshToken) {
+      try {
+        await apiClient.post('/auth/logout', { refreshToken });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+
+    get().setToken(null);
+    set({ currentUser: null, isAuthenticated: false });
+    toast.info('Вы вышли из аккаунта.');
+  },
+
+  fetchUserProfile: async () => {
+    const token = get().token;
+    if (!token) {
+      return; // Не вызываем logout, просто выходим
+    }
+
+    try {
+      // Используем правильный эндпоинт для получения профиля
+      const response = await apiClient.get<{ user: BackendUser }>('/account/profile');
+      get().setCurrentUser(response.data.user);
+    } catch (error: any) {
+      console.error('Failed to fetch user profile:', error);
+      // Только если 401 или 403 - разлогиниваем
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        get().setToken(null);
+        get().setCurrentUser(null);
+      }
+    }
+  },
 }));
+
+// Initialize store: Attempt to fetch user profile if a token exists on startup
+useSessionStore.getState().fetchUserProfile();

@@ -1,12 +1,38 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Sparkles, Headphones, Users, Lock, TrendingUp, Heart } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ReleaseCard } from '../components/ReleaseCard';
 import { ArtistCard } from '../components/ArtistCard';
 import { BlogPostCard } from '../components/BlogPostCard';
-import { releases, artists, blogPosts } from '../lib/data';
+import { fetchAllReleases, fetchAllArtists, fetchAllPosts } from '../lib/services';
+import { BackendRelease, BackendArtist, BackendPost } from '../types';
 
 export function HomePage() {
+  const [releases, setReleases] = useState<BackendRelease[]>([]);
+  const [artists, setArtists] = useState<BackendArtist[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BackendPost[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [releasesData, artistsData, postsData] = await Promise.all([
+          fetchAllReleases(),
+          fetchAllArtists(),
+          fetchAllPosts(),
+        ]);
+        setReleases(releasesData);
+        setArtists(artistsData);
+        setBlogPosts(postsData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        // Optionally, set some error state here to show in the UI
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const latestReleases = releases.slice(0, 3);
   const featuredArtists = artists.slice(0, 3);
   const latestPosts = blogPosts.slice(0, 2);
@@ -133,7 +159,7 @@ export function HomePage() {
       </section>
 
       {/* Blog Preview */}
-      <section className="py-16">
+      <section className="py-16 bg-card/50 backdrop-blur-md relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-['Bebas_Neue'] text-4xl tracking-wide">

@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:15-alpine
+    container_name: echoes-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-echoes_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-echoes_password}
+      POSTGRES_DB: ${DB_NAME:-echoes_on_tape}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-echoes_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: echoes-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${DB_USER:-echoes_user}:${DB_PASSWORD:-echoes_password}@postgres:5432/${DB_NAME:-echoes_on_tape}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    ports:
+      - "${PORT:-3001}:3001"
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+
+volumes:
+  postgres_data:

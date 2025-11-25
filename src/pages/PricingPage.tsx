@@ -8,25 +8,55 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../components/ui/accordion';
-import { currentUser } from '../lib/data';
+import { useSessionStore } from '../lib/store';
 import { AuthModal } from '../components/AuthModal';
+import { User, SubscriptionTier } from '../types'; // Import User and SubscriptionTier from types
+import { purchaseSubscription } from '../lib/services';
+import { toast } from 'sonner';
 
 export function PricingPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null);
   const navigate = useNavigate();
+  const { isAuthenticated, currentUser, setCurrentUser, fetchUserProfile } = useSessionStore();
 
-  const handleSelectPlan = (tier: string) => {
-    if (!currentUser) {
+  const handleSelectPlan = async (tier: SubscriptionTier) => {
+    if (!isAuthenticated) {
       setAuthModalOpen(true);
-    } else {
-      // Simulate payment flow
-      alert(`Переход к оплате тарифа ${tier}. В реальном приложении здесь будет интеграция с платежной системой.`);
+      return;
+    }
+
+    if (currentUser?.subscriptionTier === tier) {
+      toast.info(`Вы уже подписаны на тариф "${tier}".`);
+      return;
+    }
+
+    setLoadingTier(tier);
+    try {
+      const response = await purchaseSubscription(tier);
+      // Backend's purchaseSubscription is simplified and returns a basic user object.
+      // We should ideally re-fetch the full user profile or update the store more comprehensively.
+      // For now, we'll just update the current user's subscription tier and end date directly.
+      const updatedUser: User = {
+        ...currentUser!,
+        subscriptionTier: response.user.subscriptionTier,
+        subscriptionEndDate: response.user.subscriptionEndDate,
+      };
+      setCurrentUser(updatedUser);
+      toast.success(response.message);
+      navigate('/account');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || `Не удалось оформить подписку на тариф "${tier}".`);
+      console.error(err);
+    } finally {
+      setLoadingTier(null);
     }
   };
 
   const tiers = [
     {
       name: 'Lite',
+      id: 'lite' as SubscriptionTier,
       price: 200,
       description: 'Базовый доступ к эксклюзивному контенту',
       features: [
@@ -42,6 +72,7 @@ export function PricingPage() {
     },
     {
       name: 'Fan',
+      id: 'fan' as SubscriptionTier,
       price: 500,
       description: 'Полный фан-опыт с максимальным погружением',
       popular: true,
@@ -58,6 +89,7 @@ export function PricingPage() {
     },
     {
       name: 'Pro',
+      id: 'pro' as SubscriptionTier,
       price: 1500,
       description: 'Для музыкантов и продюсеров',
       features: [
@@ -115,10 +147,10 @@ export function PricingPage() {
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`relative rounded-lg p-8 ${
+              className={`relative rounded-lg p-8 backdrop-blur-md ${
                 tier.popular
-                  ? 'bg-gradient-to-b from-primary/10 to-card ring-2 ring-primary'
-                  : 'bg-card'
+                  ? 'bg-gradient-to-b from-primary/10 to-card/80 ring-2 ring-primary'
+                  : 'bg-card/80'
               } transition-all hover:shadow-lg`}
             >
               {tier.popular && (
@@ -160,14 +192,17 @@ export function PricingPage() {
               </ul>
 
               <Button
-                onClick={() => handleSelectPlan(tier.name)}
+                onClick={() => handleSelectPlan(tier.id)}
                 className={`w-full ${
                   tier.popular
                     ? 'bg-primary text-primary-foreground hover:bg-accent-secondary'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                 }`}
+                disabled={currentUser?.subscriptionTier === tier.id || loadingTier === tier.id}
               >
-                {currentUser?.subscription === tier.name.toLowerCase()
+                {loadingTier === tier.id
+                  ? 'Обработка...'
+                  : currentUser?.subscriptionTier === tier.id
                   ? 'Текущий тариф'
                   : 'Выбрать'}
               </Button>

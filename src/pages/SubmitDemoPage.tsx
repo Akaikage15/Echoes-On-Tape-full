@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Upload, CheckCircle, Clock, XCircle, Music } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSessionStore } from '../lib/store';
+import { createDemoSubmission, fetchAllDemos, updateDemoStatus } from '../lib/services';
+import { BackendDemo, Demo } from '../types';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
-import { currentUser } from '../lib/data';
 import {
   Table,
   TableBody,
@@ -14,235 +14,242 @@ import {
   TableHeader,
   TableRow,
 } from '../components/ui/table';
+import { Skeleton } from '../components/ui/skeleton';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export function SubmitDemoPage() {
-  const [formData, setFormData] = useState({
-    artistName: '',
-    email: currentUser?.email || '',
-    trackUrl: '',
-    genre: '',
-    comment: '',
-  });
-  const [file, setFile] = useState<File | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const { currentUser, isAuthenticated } = useSessionStore();
+  const navigate = useNavigate();
 
-  // Mock submitted demos
-  const myDemos = [
-    { id: '1', title: 'Night Drive', date: '2024-11-10', status: 'На рассмотрении' },
-    { id: '2', title: 'Synthwave Dreams', date: '2024-10-15', status: 'Прослушано' },
-  ];
+  const [artistName, setArtistName] = useState('');
+  const [email, setEmail] = useState('');
+  const [trackUrl, setTrackUrl] = useState('');
+  const [genre, setGenre] = useState('');
+  const [comment, setComment] = useState('');
+  const [submissionLoading, setSubmissionLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [myDemos, setMyDemos] = useState<BackendDemo[]>([]);
+  const [demosLoading, setDemosLoading] = useState(true);
+  const [demosError, setDemosError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser) {
+      navigate('/');
+      return;
+    }
+    fetchMyDemos();
+  }, [isAuthenticated, currentUser, navigate]);
+
+  const fetchMyDemos = async () => {
+    setDemosLoading(true);
+    setDemosError(null);
+    try {
+      const allDemos = await fetchAllDemos();
+      // In a real app, filter demos by currentUser.id if user_id is on backend demo
+      setMyDemos(allDemos.filter(demo => demo.user_id === currentUser?.id));
+    } catch (err: any) {
+      setDemosError('Не удалось загрузить ваши демо.');
+      toast.error('Не удалось загрузить ваши демо.');
+      console.error(err);
+    } finally {
+      setDemosLoading(false);
+    }
+  };
+
+  const handleSubmitDemo = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.artistName || !formData.email || (!formData.trackUrl && !file) || !formData.genre) {
-      alert('Заполните все обязательные поля');
+    if (!isAuthenticated || !currentUser) {
+      toast.error('Вы должны быть авторизованы для отправки демо.');
       return;
     }
 
-    setSubmitted(true);
-    alert('Ваше демо отправлено! Мы рассмотрим его в ближайшее время.');
-    
-    // Reset form
-    setFormData({
-      artistName: '',
-      email: currentUser?.email || '',
-      trackUrl: '',
-      genre: '',
-      comment: '',
-    });
-    setFile(null);
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'На рассмотрении': return <Clock className="h-4 w-4 text-warning" />;
-      case 'Прослушано': return <CheckCircle className="h-4 w-4 text-info" />;
-      case 'Принято': return <CheckCircle className="h-4 w-4 text-success" />;
-      case 'Отклонено': return <XCircle className="h-4 w-4 text-destructive" />;
-      default: return <Clock className="h-4 w-4" />;
+    setSubmissionLoading(true);
+    try {
+      const newDemo: Omit<BackendDemo, 'id' | 'user_id' | 'status' | 'created_at' | 'updated_at'> = {
+        artist_name: artistName,
+        email: email,
+        track_url: trackUrl,
+        genre: genre,
+        comment: comment,
+        upload_date: new Date().toISOString(),
+      };
+      await createDemoSubmission(newDemo);
+      toast.success('Демо успешно отправлено!');
+      // Clear form
+      setArtistName('');
+      setEmail('');
+      setTrackUrl('');
+      setGenre('');
+      setComment('');
+      fetchMyDemos(); // Refresh demos list
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Не удалось отправить демо.');
+      console.error(err);
+    } finally {
+      setSubmissionLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: BackendDemo['status']) => {
     switch (status) {
-      case 'На рассмотрении': return 'border-warning text-warning';
-      case 'Прослушано': return 'border-info text-info';
-      case 'Принято': return 'border-success text-success';
-      case 'Отклонено': return 'border-destructive text-destructive';
-      default: return '';
+      case 'pending': return 'bg-yellow-500/20 text-yellow-500';
+      case 'reviewed': return 'bg-blue-500/20 text-blue-500';
+      case 'accepted': return 'bg-green-500/20 text-green-500';
+      case 'rejected': return 'bg-red-500/20 text-red-500';
+      default: return 'bg-gray-500/20 text-gray-500';
     }
   };
+
+  if (!isAuthenticated || !currentUser) {
+    return null; // Should redirect, but just in case
+  }
 
   return (
     <div className="min-h-screen py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-12">
+          <div className="text-center mb-12">
             <h1 className="font-['Bebas_Neue'] text-5xl md:text-6xl tracking-wide mb-4">
               Отправить демо
             </h1>
-            <p className="text-lg text-muted-foreground mb-4">
-              Отправьте нам свою музыку для возможного подписания на лейбл
+            <p className="text-lg text-muted-foreground">
+              У вас есть что-то уникальное? Отправьте нам свое демо!
             </p>
-            {currentUser?.subscription === 'pro' && (
-              <Badge className="bg-primary text-primary-foreground gap-2">
-                <Music className="h-3 w-3" />
-                Ваше демо в приоритете
-              </Badge>
-            )}
           </div>
 
-          {/* Form */}
-          <div className="bg-card p-6 md:p-8 rounded-lg mb-12">
-            <h2 className="font-['Bebas_Neue'] text-3xl mb-6">Загрузить трек</h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Submission Form */}
+          <div className="bg-card p-6 rounded-lg shadow-md mb-12">
+            <h2 className="font-['Bebas_Neue'] text-3xl mb-6">
+              Новая отправка
+            </h2>
+            <form onSubmit={handleSubmitDemo} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="artistName">
-                    Имя артиста <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="artistName">Имя артиста</Label>
                   <Input
                     id="artistName"
                     type="text"
-                    placeholder="Ваш сценический псевдоним"
-                    value={formData.artistName}
-                    onChange={(e) => setFormData({ ...formData, artistName: e.target.value })}
+                    value={artistName}
+                    onChange={(e) => setArtistName(e.target.value)}
                     required
-                    className="bg-secondary border-border"
+                    disabled={submissionLoading}
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="email">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="email">Email для связи</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="bg-secondary border-border"
+                    disabled={submissionLoading}
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="trackUrl">
-                  Ссылка на трек (SoundCloud / YouTube)
-                </Label>
+                <Label htmlFor="trackUrl">Ссылка на трек (SoundCloud/YouTube)</Label>
                 <Input
                   id="trackUrl"
                   type="url"
-                  placeholder="https://soundcloud.com/..."
-                  value={formData.trackUrl}
-                  onChange={(e) => setFormData({ ...formData, trackUrl: e.target.value })}
-                  className="bg-secondary border-border"
+                  value={trackUrl}
+                  onChange={(e) => setTrackUrl(e.target.value)}
+                  required
+                  disabled={submissionLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Или загрузите файл ниже
-                </p>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="file">
-                  Загрузить файл (MP3 / WAV, макс. 50 MB)
-                </Label>
-                <div className="flex items-center gap-4">
-                  <Input
-                    id="file"
-                    type="file"
-                    accept=".mp3,.wav"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="bg-secondary border-border"
-                  />
-                  {file && (
-                    <Badge variant="outline">{(file.size / 1024 / 1024).toFixed(2)} MB</Badge>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="genre">
-                  Жанр <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="genre">Жанр</Label>
                 <Input
                   id="genre"
                   type="text"
-                  placeholder="Например: Dark Ambient, Synthwave, Dream Pop"
-                  value={formData.genre}
-                  onChange={(e) => setFormData({ ...formData, genre: e.target.value })}
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
                   required
-                  className="bg-secondary border-border"
+                  disabled={submissionLoading}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="comment">Комментарий</Label>
+                <Label htmlFor="comment">Комментарий (необязательно)</Label>
                 <Textarea
                   id="comment"
-                  placeholder="Расскажите о треке, вдохновении, процессе создания..."
-                  value={formData.comment}
-                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
                   rows={4}
-                  className="bg-secondary border-border resize-none"
+                  disabled={submissionLoading}
                 />
               </div>
-
-              {!currentUser?.subscription && (
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong className="text-foreground">Совет:</strong> Pro-подписчики получают 
-                    приоритетное рассмотрение демо и могут отправлять неограниченное количество треков.
-                  </p>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                className="w-full gap-2 bg-primary text-primary-foreground hover:bg-accent-secondary"
-              >
-                <Upload className="h-4 w-4" />
-                Отправить демо
+              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-accent-secondary" disabled={submissionLoading}>
+                {submissionLoading ? 'Отправка...' : 'Отправить демо'}
               </Button>
             </form>
           </div>
 
-          {/* My Demos */}
-          {currentUser && myDemos.length > 0 && (
-            <div className="bg-card p-6 md:p-8 rounded-lg">
-              <h2 className="font-['Bebas_Neue'] text-3xl mb-6">Мои демо</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Название</TableHead>
-                    <TableHead>Дата отправки</TableHead>
-                    <TableHead>Статус</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {myDemos.map(demo => (
-                    <TableRow key={demo.id}>
-                      <TableCell className="font-medium">{demo.title}</TableCell>
-                      <TableCell>
-                        {new Date(demo.date).toLocaleDateString('ru-RU')}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={`gap-2 ${getStatusColor(demo.status)}`}>
-                          {getStatusIcon(demo.status)}
-                          {demo.status}
-                        </Badge>
-                      </TableCell>
+          {/* My Demos Table */}
+          <div className="bg-card p-6 rounded-lg shadow-md">
+            <h2 className="font-['Bebas_Neue'] text-3xl mb-6">Мои отправки</h2>
+            {demosLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : demosError ? (
+              <div className="text-center py-8">
+                <p className="text-destructive">{demosError}</p>
+                <Button onClick={fetchMyDemos} className="mt-4">Повторить</Button>
+              </div>
+            ) : myDemos.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Артист</TableHead>
+                      <TableHead>Трек</TableHead>
+                      <TableHead>Жанр</TableHead>
+                      <TableHead>Дата отправки</TableHead>
+                      <TableHead>Статус</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                  </TableHeader>
+                  <TableBody>
+                    {myDemos.map((demo) => (
+                      <TableRow key={demo.id}>
+                        <TableCell className="font-medium">{demo.artist_name}</TableCell>
+                        <TableCell>
+                          <a href={demo.track_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {demo.track_url.length > 30 ? demo.track_url.substring(0, 27) + '...' : demo.track_url}
+                          </a>
+                        </TableCell>
+                        <TableCell>{demo.genre}</TableCell>
+                        <TableCell>{new Date(demo.upload_date).toLocaleDateString('ru-RU')}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(demo.status)}`}>
+                            {
+                            demo.status === 'pending' ? 'В ожидании' :
+                            demo.status === 'reviewed' ? 'Рассмотрено' :
+                            demo.status === 'accepted' ? 'Принято' :
+                            demo.status === 'rejected' ? 'Отклонено' :
+                            demo.status
+                            }
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <h3 className="font-['Bebas_Neue'] text-2xl mb-4">
+                  Вы пока не отправляли демо
+                </h3>
+                <p className="text-muted-foreground">
+                  Используйте форму выше, чтобы отправить свой первый трек!
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
