@@ -35,6 +35,27 @@ export const uploadAvatar = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Требуется аутентификация' });
     }
 
+    // Получаем старый аватар пользователя
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { avatar_url: true }
+    });
+
+    // Удаляем старый аватар, если он существует
+    if (user?.avatar_url) {
+      const oldAvatarPath = path.join(__dirname, '../../', user.avatar_url);
+      try {
+        const fs = require('fs');
+        if (fs.existsSync(oldAvatarPath)) {
+          fs.unlinkSync(oldAvatarPath);
+          console.log('Старый аватар удалён:', oldAvatarPath);
+        }
+      } catch (err) {
+        console.error('Ошибка удаления старого аватара:', err);
+        // Продолжаем выполнение даже если не удалось удалить старый файл
+      }
+    }
+
     // Формируем URL файла
     const fileUrl = `/uploads/avatars/${req.file.filename}`;
     console.log('Сформирован URL:', fileUrl);

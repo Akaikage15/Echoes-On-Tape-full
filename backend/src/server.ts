@@ -9,8 +9,12 @@ dotenv.config();
 
 import app from './app';
 import { PORT } from './utils/config';
+import { cleanupLogs } from './utils/cleanup-logs';
 
 const port = PORT || 3001;
+
+// Очистка старых логов при запуске
+cleanupLogs();
 
 app.listen(port, () => {
   console.log('🚀 ========================================');

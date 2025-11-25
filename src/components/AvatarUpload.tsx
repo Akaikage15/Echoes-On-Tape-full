@@ -22,7 +22,9 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   currentAvatar, 
   onUploadSuccess 
 }) => {
-  const [preview, setPreview] = useState<string | null>(currentAvatar || null);
+  const [preview, setPreview] = useState<string | null>(
+    currentAvatar ? `http://localhost:3001${currentAvatar}` : null
+  );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +83,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       
       const errorMessage = err.response?.data?.error || err.message || 'Ошибка загрузки';
       setError(errorMessage);
-      setPreview(currentAvatar || null);
+      setPreview(currentAvatar ? `http://localhost:3001${currentAvatar}` : null);
     } finally {
       setUploading(false);
     }

@@ -15,3 +15,5 @@ GEMINI.md\n# Build output\nbuild/\ndist/\n\n# Log files\nnpm-debug.log*\nyarn-de
 
 # Backend logs
 backend/logs/*.log
+
+backend/uploads/*
