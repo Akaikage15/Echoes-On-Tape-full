@@ -7,8 +7,6 @@ module.exports = {
   // using babel-jest
   transform: {
     "^.+\\.(ts|tsx)$": "babel-jest",
-    // Use jest-transform-stub for other assets
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "jest-transform-stub",
   },
 
   // Runs special logic, such as cleaning up components
@@ -82,7 +80,7 @@ module.exports = {
     '^@radix-ui/react-alert-dialog@1.1.6$': '@radix-ui/react-alert-dialog',
     '^@radix-ui/react-accordion@1.2.3$': '@radix-ui/react-accordion',
     
-    // jest-transform-stub will handle other assets
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "jest-transform-stub",
+    // Mock static assets
+    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
   },
 };
