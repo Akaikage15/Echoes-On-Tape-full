@@ -43,6 +43,8 @@ export function AccountPage() {
       tier,
       subscriptionEndDate,
       subscriptionTier: currentUser?.subscriptionTier,
+      bio: currentUser?.bio,
+      social_links: currentUser?.social_links,
     });
   }, [currentUser, isAuthenticated, tier, subscriptionEndDate]);
 

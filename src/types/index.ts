@@ -9,6 +9,8 @@ export interface BackendUser {
   email: string;
   name?: string;
   avatar_url?: string;
+  bio?: string;
+  social_links?: Record<string, string>;
   role?: UserRole;
   subscriptionTier?: SubscriptionTier;
   subscriptionEndDate?: string;

@@ -86,6 +86,9 @@ export class AuthService {
       email: user.email,
       name: user.name,
       avatar_url: user.avatar_url,
+      bio: user.bio,
+      social_links: user.social_links,
+      role: user.role,
       subscriptionTier: user.subscriptionTier,
       subscriptionEndDate: user.subscriptionEndDate,
     };
