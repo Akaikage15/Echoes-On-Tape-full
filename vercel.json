@@ -2,6 +2,7 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "build",
+  "installCommand": "npm install && cd backend && npm install && npx prisma generate",
   "rewrites": [
     {
       "source": "/api/(.*)",
