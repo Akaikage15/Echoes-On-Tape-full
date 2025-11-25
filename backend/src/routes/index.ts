@@ -16,8 +16,12 @@ import pollRoutes from './poll.routes';
 import proLibraryRoutes from './pro-library.routes';
 import demoRoutes from './demo.routes';
 import uploadRoutes from './upload.routes';
+import healthRoutes from './health.routes';
 
 const router = Router();
+
+// Health checks (без префикса /api)
+router.use('/', healthRoutes);
 
 // Подключение роутов
 router.use('/auth', authRoutes);
