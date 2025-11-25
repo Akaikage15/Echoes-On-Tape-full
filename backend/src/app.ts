@@ -13,9 +13,25 @@ import { requestLogger } from './middleware/logger.middleware';
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  // Vercel автоматически добавит production URL
+  ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true, // Разрешить отправку cookies
+  origin: process.env.NODE_ENV === 'production' 
+    ? (origin, callback) => {
+        // В production разрешаем все Vercel URLs и настроенные origins
+        if (!origin || origin.includes('.vercel.app') || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    : allowedOrigins,
+  credentials: true,
 }));
 app.use(express.json());
 app.use(cookieParser());
