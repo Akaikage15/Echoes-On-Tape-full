@@ -4,7 +4,7 @@
  */
 
 import { userRepository } from '../repositories';
-import { AppError } from '../middleware/error.middleware';
+import { NotFoundError, BadRequestError } from '../utils/errors';
 
 export class SubscriptionService {
   /**
@@ -14,13 +14,13 @@ export class SubscriptionService {
     // Валидация tier
     const validTiers = ['lite', 'fan', 'pro'];
     if (!validTiers.includes(tier)) {
-      throw new AppError('Неверный тип подписки', 400);
+      throw new BadRequestError('Неверный тип подписки');
     }
 
     // Проверка существования пользователя
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new AppError('Пользователь не найден', 404);
+      throw new NotFoundError('Пользователь не найден');
     }
 
     // Расчет даты окончания (30 дней)
@@ -44,7 +44,7 @@ export class SubscriptionService {
   async cancelSubscription(userId: string) {
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new AppError('Пользователь не найден', 404);
+      throw new NotFoundError('Пользователь не найден');
     }
 
     // Установка подписки в 'none'

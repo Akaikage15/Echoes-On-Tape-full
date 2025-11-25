@@ -4,7 +4,7 @@
  */
 
 import { postRepository } from '../repositories';
-import { AppError } from '../middleware/error.middleware';
+import { NotFoundError } from '../utils/errors';
 
 export class PostService {
   /**
@@ -20,7 +20,7 @@ export class PostService {
   async getPostById(id: string) {
     const post = await postRepository.findById(id);
     if (!post) {
-      throw new AppError('Пост не найден', 404);
+      throw new NotFoundError('Пост не найден');
     }
     return post;
   }

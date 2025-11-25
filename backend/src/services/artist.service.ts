@@ -4,7 +4,7 @@
  */
 
 import { artistRepository } from '../repositories';
-import { AppError } from '../middleware/error.middleware';
+import { NotFoundError } from '../utils/errors';
 
 export class ArtistService {
   /**
@@ -20,7 +20,7 @@ export class ArtistService {
   async getArtistById(id: string) {
     const artist = await artistRepository.findById(id);
     if (!artist) {
-      throw new AppError('Артист не найден', 404);
+      throw new NotFoundError('Артист не найден');
     }
     return artist;
   }

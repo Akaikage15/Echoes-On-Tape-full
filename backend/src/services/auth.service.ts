@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { userRepository } from '../repositories';
 import { JWT_SECRET } from '../utils/config';
-import { AppError } from '../middleware/error.middleware';
+import { UnauthorizedError, ConflictError, NotFoundError } from '../utils/errors';
 
 export class AuthService {
   /**
@@ -17,7 +17,7 @@ export class AuthService {
     // Проверка существования пользователя
     const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
-      throw new AppError('Пользователь с таким email уже существует', 409);
+      throw new ConflictError('Пользователь с таким email уже существует');
     }
 
     // Хеширование пароля
@@ -52,13 +52,13 @@ export class AuthService {
     // Поиск пользователя
     const user = await userRepository.findByEmail(email);
     if (!user) {
-      throw new AppError('Неверный email или пароль', 401);
+      throw new UnauthorizedError('Неверный email или пароль');
     }
 
     // Проверка пароля
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
-      throw new AppError('Неверный email или пароль', 401);
+      throw new UnauthorizedError('Неверный email или пароль');
     }
 
     // Генерация токена
@@ -86,7 +86,7 @@ export class AuthService {
   async getProfile(userId: string) {
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new AppError('Пользователь не найден', 404);
+      throw new NotFoundError('Пользователь не найден');
     }
 
     return {

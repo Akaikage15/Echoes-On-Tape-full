@@ -4,7 +4,7 @@
  */
 
 import { releaseRepository } from '../repositories';
-import { AppError } from '../middleware/error.middleware';
+import { NotFoundError } from '../utils/errors';
 
 export class ReleaseService {
   /**
@@ -20,7 +20,7 @@ export class ReleaseService {
   async getReleaseById(id: string) {
     const release = await releaseRepository.findById(id);
     if (!release) {
-      throw new AppError('Релиз не найден', 404);
+      throw new NotFoundError('Релиз не найден');
     }
     return release;
   }
