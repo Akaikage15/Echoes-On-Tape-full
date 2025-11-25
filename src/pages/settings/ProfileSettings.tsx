@@ -26,8 +26,14 @@ const ProfileSettings = () => {
     bio: '',
     socialLinks: {
       instagram: '',
-      twitter: '',
+      vk: '',
+      telegram: '',
+      discord: '',
+      tiktok: '',
+      youtube: '',
       spotify: '',
+      yandex_music: '',
+      bandlink: '',
     },
   });
 
@@ -43,8 +49,14 @@ const ProfileSettings = () => {
           bio: data.user.bio || '',
           socialLinks: data.user.social_links || {
             instagram: '',
-            twitter: '',
+            vk: '',
+            telegram: '',
+            discord: '',
+            tiktok: '',
+            youtube: '',
             spotify: '',
+            yandex_music: '',
+            bandlink: '',
           },
         });
       } catch (error) {
@@ -88,15 +100,14 @@ const ProfileSettings = () => {
       
       // Очищаем socialLinks от пустых значений
       const cleanedSocialLinks: Record<string, string> = {};
-      if (formData.socialLinks?.instagram?.trim()) {
-        cleanedSocialLinks.instagram = formData.socialLinks.instagram.trim();
-      }
-      if (formData.socialLinks?.twitter?.trim()) {
-        cleanedSocialLinks.twitter = formData.socialLinks.twitter.trim();
-      }
-      if (formData.socialLinks?.spotify?.trim()) {
-        cleanedSocialLinks.spotify = formData.socialLinks.spotify.trim();
-      }
+      const socialPlatforms = ['instagram', 'vk', 'telegram', 'discord', 'tiktok', 'youtube', 'spotify', 'yandex_music', 'bandlink'];
+      
+      socialPlatforms.forEach(platform => {
+        const value = formData.socialLinks?.[platform as keyof typeof formData.socialLinks];
+        if (value && value.trim()) {
+          cleanedSocialLinks[platform] = value.trim();
+        }
+      });
       
       if (Object.keys(cleanedSocialLinks).length > 0) {
         cleanedData.socialLinks = cleanedSocialLinks;

@@ -10,7 +10,7 @@ interface SocialLinksProps {
 }
 
 export const SocialLinks: React.FC<SocialLinksProps> = ({ links, className = '' }) => {
-  const socialIcons: Record<string, { icon: JSX.Element; label: string }> = {
+  const socialIcons: Record<string, { icon: React.ReactElement; label: string }> = {
     instagram: {
       label: 'Instagram',
       icon: (
