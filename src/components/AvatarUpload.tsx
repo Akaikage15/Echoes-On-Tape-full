@@ -26,7 +26,8 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const updateUser = useSessionStore((state) => state.updateUser);
+  const setCurrentUser = useSessionStore((state) => state.setCurrentUser);
+  const currentUser = useSessionStore((state) => state.currentUser);
 
   const handleFileSelect = async (file: File) => {
     // Валидация
@@ -58,7 +59,12 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       console.log('Ответ сервера:', response);
       
       // Обновляем пользователя в store
-      updateUser({ avatar_url: response.url });
+      if (currentUser) {
+        setCurrentUser({
+          ...currentUser,
+          avatar_url: response.url
+        });
+      }
       
       if (onUploadSuccess) {
         onUploadSuccess(response.url);
