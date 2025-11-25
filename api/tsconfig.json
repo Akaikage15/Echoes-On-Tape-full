@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "rootDir": ".",
     "baseUrl": ".",
+    "moduleResolution": "node",
     "paths": {
       "@/*": ["../backend/src/*"]
     }
