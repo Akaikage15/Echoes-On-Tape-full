@@ -67,7 +67,8 @@
       },
       "scripts": {
             "dev": "vite",
-            "build": "vite build",
+            "build": "vite build && cd backend && npm install && npx prisma generate",
+            "vercel-build": "vite build && cd backend && npm install && npx prisma generate",
             "test": "jest",
             "test:watch": "jest --watch"
       }
