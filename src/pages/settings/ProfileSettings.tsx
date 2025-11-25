@@ -185,40 +185,114 @@ const ProfileSettings = () => {
           <div className="space-y-4">
             <Label>Социальные сети</Label>
 
-            <div className="space-y-2">
-              <Label htmlFor="instagram" className="text-sm font-normal">
-                Instagram
-              </Label>
-              <Input
-                id="instagram"
-                value={formData.socialLinks?.instagram || ''}
-                onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
-                placeholder="https://instagram.com/username"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="instagram" className="text-sm font-normal">
+                  Instagram
+                </Label>
+                <Input
+                  id="instagram"
+                  value={formData.socialLinks?.instagram || ''}
+                  onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                  placeholder="https://instagram.com/username"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="twitter" className="text-sm font-normal">
-                Twitter
-              </Label>
-              <Input
-                id="twitter"
-                value={formData.socialLinks?.twitter || ''}
-                onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
-                placeholder="https://twitter.com/username"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="vk" className="text-sm font-normal">
+                  ВКонтакте
+                </Label>
+                <Input
+                  id="vk"
+                  value={formData.socialLinks?.vk || ''}
+                  onChange={(e) => handleSocialLinkChange('vk', e.target.value)}
+                  placeholder="https://vk.com/username"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="spotify" className="text-sm font-normal">
-                Spotify
-              </Label>
-              <Input
-                id="spotify"
-                value={formData.socialLinks?.spotify || ''}
-                onChange={(e) => handleSocialLinkChange('spotify', e.target.value)}
-                placeholder="https://open.spotify.com/artist/..."
-              />
+              <div className="space-y-2">
+                <Label htmlFor="telegram" className="text-sm font-normal">
+                  Telegram
+                </Label>
+                <Input
+                  id="telegram"
+                  value={formData.socialLinks?.telegram || ''}
+                  onChange={(e) => handleSocialLinkChange('telegram', e.target.value)}
+                  placeholder="https://t.me/username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="discord" className="text-sm font-normal">
+                  Discord
+                </Label>
+                <Input
+                  id="discord"
+                  value={formData.socialLinks?.discord || ''}
+                  onChange={(e) => handleSocialLinkChange('discord', e.target.value)}
+                  placeholder="https://discord.gg/..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tiktok" className="text-sm font-normal">
+                  TikTok
+                </Label>
+                <Input
+                  id="tiktok"
+                  value={formData.socialLinks?.tiktok || ''}
+                  onChange={(e) => handleSocialLinkChange('tiktok', e.target.value)}
+                  placeholder="https://tiktok.com/@username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="youtube" className="text-sm font-normal">
+                  YouTube
+                </Label>
+                <Input
+                  id="youtube"
+                  value={formData.socialLinks?.youtube || ''}
+                  onChange={(e) => handleSocialLinkChange('youtube', e.target.value)}
+                  placeholder="https://youtube.com/@username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="spotify" className="text-sm font-normal">
+                  Spotify
+                </Label>
+                <Input
+                  id="spotify"
+                  value={formData.socialLinks?.spotify || ''}
+                  onChange={(e) => handleSocialLinkChange('spotify', e.target.value)}
+                  placeholder="https://open.spotify.com/artist/..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="yandex_music" className="text-sm font-normal">
+                  Яндекс Музыка
+                </Label>
+                <Input
+                  id="yandex_music"
+                  value={formData.socialLinks?.yandex_music || ''}
+                  onChange={(e) => handleSocialLinkChange('yandex_music', e.target.value)}
+                  placeholder="https://music.yandex.ru/artist/..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bandlink" className="text-sm font-normal">
+                  Band.link
+                </Label>
+                <Input
+                  id="bandlink"
+                  value={formData.socialLinks?.bandlink || ''}
+                  onChange={(e) => handleSocialLinkChange('bandlink', e.target.value)}
+                  placeholder="https://band.link/..."
+                />
+              </div>
             </div>
           </div>
 
