@@ -14,7 +14,7 @@ export const updateProfileSchema = z.object({
   bio: z.string().max(500, 'Биография слишком длинная').optional(),
   avatar: z.string().url('Некорректный URL аватара').optional(),
   socialLinks: z
-    .record(z.string())
+    .record(z.string(), z.string())
     .optional(),
 });
 
