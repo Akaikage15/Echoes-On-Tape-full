@@ -148,7 +148,7 @@ export class AuthController {
         return res.status(401).json({ message: 'Не авторизован' });
       }
 
-      const user = await authService.getProfile(req.user.userId);
+      const user = await authService.getProfile(req.user.id);
 
       res.status(200).json({
         message: 'Профиль пользователя',

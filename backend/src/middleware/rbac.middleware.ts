@@ -19,6 +19,7 @@ declare global {
         email: string;
         role: UserRole;
         subscriptionTier: string;
+        subscriptionEndDate?: Date | null;
       };
     }
   }

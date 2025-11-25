@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
  */
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Не авторизован' });
@@ -59,7 +59,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
  */
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const updates: UpdateProfileDto = req.body;
 
     if (!userId) {
@@ -116,7 +116,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
  */
 export const changePassword = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const { currentPassword, newPassword }: ChangePasswordDto = req.body;
 
     if (!userId) {
@@ -158,7 +158,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
  */
 export const deleteAccount = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Не авторизован' });

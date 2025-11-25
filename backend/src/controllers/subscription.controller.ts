@@ -24,7 +24,7 @@ export class SubscriptionController {
         return res.status(400).json({ message: 'Требуется тип подписки' });
       }
 
-      const user = await subscriptionService.purchaseSubscription(req.user.userId, tier);
+      const user = await subscriptionService.purchaseSubscription(req.user.id, tier);
 
       res.status(200).json({
         message: `Подписка на уровень "${tier}" успешно оформлена.`,
@@ -45,7 +45,7 @@ export class SubscriptionController {
         return res.status(401).json({ message: 'Не авторизован' });
       }
 
-      const user = await subscriptionService.cancelSubscription(req.user.userId);
+      const user = await subscriptionService.cancelSubscription(req.user.id);
 
       res.status(200).json({
         message: 'Подписка отменена',

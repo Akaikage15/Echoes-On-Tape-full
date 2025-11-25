@@ -5,22 +5,13 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { JWT_SECRET } from '../utils/config';
 
 const prisma = new PrismaClient();
 
-// Расширяем Request для добавления user
-export interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-    id: string;
-    email: string;
-    role: UserRole;
-    subscriptionTier: string;
-    subscriptionEndDate?: Date | null;
-  };
-}
+// Используем глобальный тип из rbac.middleware.ts
+export interface AuthRequest extends Request {}
 
 /**
  * Middleware для проверки JWT токена
@@ -60,7 +51,6 @@ export const authenticateToken = async (
     }
 
     req.user = {
-      userId: user.id,
       id: user.id,
       email: user.email,
       role: user.role,

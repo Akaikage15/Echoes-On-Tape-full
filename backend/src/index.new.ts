@@ -147,7 +147,7 @@ app.get('/api/auth/profile', async (req, res) => {
 app.post('/api/subscriptions/purchase', authenticateToken, async (req: any, res) => {
   try {
     const { tier } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     if (!userId || !tier) {
       return res.status(400).json({ message: 'Требуется User ID и тип подписки' });
@@ -326,7 +326,7 @@ app.post('/api/polls/:id/vote', authenticateToken, async (req: any, res) => {
   try {
     const { id } = req.params;
     const { optionId } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     if (!optionId) {
       return res.status(400).json({ message: 'ID опции для голосования обязателен' });
@@ -371,7 +371,7 @@ app.get('/api/pro-library/:id', async (req, res) => {
 // Demos
 app.get('/api/demos', authenticateToken, async (req: any, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     const demos = await demoRepository.findByUserId(userId);
     res.status(200).json(demos);
   } catch (error) {
@@ -397,7 +397,7 @@ app.get('/api/demos/:id', authenticateToken, async (req, res) => {
 app.post('/api/demos', authenticateToken, async (req: any, res) => {
   try {
     const { artist_name, email, track_url, genre, comment } = req.body;
-    const user_id = req.user.userId;
+    const user_id = req.user.id;
 
     if (!artist_name || !email || !track_url || !genre) {
       return res.status(400).json({ message: 'Необходимо заполнить все обязательные поля' });

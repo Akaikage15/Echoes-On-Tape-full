@@ -118,7 +118,7 @@ app.get('/api/auth/profile', async (req, res) => {
 // Subscriptions (simulated)
 app.post('/api/subscriptions/purchase', authenticateToken, async (req: any, res) => {
   const { tier } = req.body;
-  const userId = req.user.userId;
+  const userId = req.user.id;
 
   if (!userId || !tier) {
     return res.status(400).json({ message: 'Требуется User ID и тип подписки' });
@@ -239,7 +239,7 @@ app.get('/api/polls/:id', async (req, res) => {
 app.post('/api/polls/:id/vote', authenticateToken, async (req: any, res) => {
   const { id } = req.params;
   const { optionId } = req.body;
-  const userId = req.user.userId;
+  const userId = req.user.id;
 
   if (!optionId) {
     return res.status(400).json({ message: 'ID опции для голосования обязателен' });
@@ -289,7 +289,7 @@ app.get('/api/demos/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/demos', authenticateToken, async (req: any, res) => {
   const { artist_name, email, track_url, genre, comment } = req.body;
-  const user_id = req.user.userId;
+  const user_id = req.user.id;
 
   if (!artist_name || !email || !track_url || !genre) {
     return res.status(400).json({ message: 'Необходимо заполнить все обязательные поля' });
