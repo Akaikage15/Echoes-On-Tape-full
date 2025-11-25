@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install && cd backend && npm install && npx prisma generate",
+  "ignoreCommand": "exit 0",
   "rewrites": [
     {
       "source": "/api/(.*)",
