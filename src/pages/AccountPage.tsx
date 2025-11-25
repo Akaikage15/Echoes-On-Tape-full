@@ -33,21 +33,16 @@ export function AccountPage() {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, logout, setCurrentUser } =
     useSessionStore();
-  const { tier, subscriptionEndDate } = useSubscription();
+  const { subscriptionEndDate } = useSubscription();
   const [activeTab, setActiveTab] = useState('subscription');
 
-  // Логирование для отладки
+  // Перезагружаем профиль при монтировании
   useEffect(() => {
-    console.log('AccountPage mounted', {
-      currentUser,
-      isAuthenticated,
-      tier,
-      subscriptionEndDate,
-      subscriptionTier: currentUser?.subscriptionTier,
-      bio: currentUser?.bio,
-      social_links: currentUser?.social_links,
-    });
-  }, [currentUser, isAuthenticated, tier, subscriptionEndDate]);
+    const { fetchUserProfile } = useSessionStore.getState();
+    if (isAuthenticated) {
+      fetchUserProfile();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -155,7 +150,7 @@ export function AccountPage() {
                 )}
                 
                 {/* Социальные сети */}
-                {currentUser.social_links && (
+                {currentUser.social_links && Object.keys(currentUser.social_links).length > 0 && (
                   <SocialLinks links={currentUser.social_links} className="mt-4" />
                 )}
                 

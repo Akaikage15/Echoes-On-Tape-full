@@ -69,7 +69,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }
 
     try {
-      const response = await apiClient.get<{ user: BackendUser }>('/auth/profile');
+      // Используем правильный эндпоинт для получения профиля
+      const response = await apiClient.get<{ user: BackendUser }>('/account/profile');
       get().setCurrentUser(response.data.user);
     } catch (error: any) {
       console.error('Failed to fetch user profile:', error);

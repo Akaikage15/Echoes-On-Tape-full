@@ -82,8 +82,14 @@ export interface UpdateProfileDto {
   avatar?: string;
   socialLinks?: {
     instagram?: string;
-    twitter?: string;
+    vk?: string;
+    telegram?: string;
+    discord?: string;
+    tiktok?: string;
+    youtube?: string;
     spotify?: string;
+    yandex_music?: string;
+    bandlink?: string;
   };
 }
 

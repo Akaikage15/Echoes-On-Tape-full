@@ -109,11 +109,33 @@ const ProfileSettings = () => {
         }
       });
       
-      if (Object.keys(cleanedSocialLinks).length > 0) {
-        cleanedData.socialLinks = cleanedSocialLinks;
-      }
+      // Всегда отправляем socialLinks, даже если пустой объект (для удаления всех ссылок)
+      cleanedData.socialLinks = cleanedSocialLinks;
 
-      await updateProfile(cleanedData);
+      const updatedUser = await updateProfile(cleanedData);
+      
+      // Обновляем данные в store
+      const { setCurrentUser } = useSessionStore.getState();
+      setCurrentUser(updatedUser);
+      
+      // Обновляем локальное состояние формы
+      setFormData({
+        name: updatedUser.name || '',
+        email: updatedUser.email || '',
+        bio: updatedUser.bio || '',
+        socialLinks: updatedUser.social_links || {
+          instagram: '',
+          vk: '',
+          telegram: '',
+          discord: '',
+          tiktok: '',
+          youtube: '',
+          spotify: '',
+          yandex_music: '',
+          bandlink: '',
+        },
+      });
+      
       toast.success('Профиль успешно обновлён');
       setHasChanges(false);
     } catch (error: any) {
