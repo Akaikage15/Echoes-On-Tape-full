@@ -154,11 +154,8 @@ export const uploadAvatar = async (file: File) => {
   const formData = new FormData();
   formData.append('avatar', file);
   
-  const response = await apiClient.post('/upload/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  // Не указываем Content-Type - axios автоматически установит multipart/form-data с boundary
+  const response = await apiClient.post('/upload/avatar', formData);
   return response.data;
 };
 
@@ -170,11 +167,7 @@ export const uploadCover = async (file: File) => {
   const formData = new FormData();
   formData.append('cover', file);
   
-  const response = await apiClient.post('/upload/cover', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await apiClient.post('/upload/cover', formData);
   return response.data;
 };
 
@@ -186,10 +179,6 @@ export const uploadAudio = async (file: File) => {
   const formData = new FormData();
   formData.append('audio', file);
   
-  const response = await apiClient.post('/upload/audio', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await apiClient.post('/upload/audio', formData);
   return response.data;
 };
