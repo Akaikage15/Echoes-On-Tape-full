@@ -71,6 +71,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         status: err.response?.status,
         data: err.response?.data
       });
+      console.error('Данные ответа сервера:', err.response?.data);
       
       const errorMessage = err.response?.data?.error || err.message || 'Ошибка загрузки';
       setError(errorMessage);

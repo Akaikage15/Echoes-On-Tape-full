@@ -21,18 +21,26 @@ const prisma = new PrismaClient();
  */
 export const uploadAvatar = async (req: Request, res: Response) => {
   try {
+    console.log('uploadAvatar вызван');
+    console.log('req.file:', req.file);
+    console.log('req.user:', req.user);
+    
     if (!req.file) {
+      console.log('Файл не найден в запросе');
       return res.status(400).json({ error: 'Файл не загружен' });
     }
 
     if (!req.user) {
+      console.log('Пользователь не авторизован');
       return res.status(401).json({ error: 'Требуется аутентификация' });
     }
 
     // Формируем URL файла
     const fileUrl = `/uploads/avatars/${req.file.filename}`;
+    console.log('Сформирован URL:', fileUrl);
 
     // Обновляем профиль пользователя
+    console.log('Обновление пользователя:', req.user.id);
     const updatedUser = await prisma.user.update({
       where: { id: req.user.id },
       data: { avatar_url: fileUrl },
@@ -46,6 +54,8 @@ export const uploadAvatar = async (req: Request, res: Response) => {
         subscriptionTier: true
       }
     });
+
+    console.log('Пользователь обновлён:', updatedUser);
 
     res.json({
       message: 'Аватар успешно загружен',
