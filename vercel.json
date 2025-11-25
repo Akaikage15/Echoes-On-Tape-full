@@ -2,12 +2,18 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "build",
-  "installCommand": "npm install && cd backend && npm install && npx prisma generate",
-  "ignoreCommand": "exit 0",
+  "installCommand": "npm install && cd api && npm install && cd ../backend && npm install && npx prisma generate",
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.ts": {
+      "memory": 1024,
+      "maxDuration": 10,
+      "includeFiles": "backend/**"
+    }
+  }
 }
