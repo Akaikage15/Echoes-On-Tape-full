@@ -14,17 +14,7 @@ export const updateProfileSchema = z.object({
   bio: z.string().max(500, 'Биография слишком длинная').optional(),
   avatar: z.string().url('Некорректный URL аватара').optional(),
   socialLinks: z
-    .object({
-      instagram: z.string().url('Некорректный URL Instagram').or(z.literal('')).optional(),
-      vk: z.string().url('Некорректный URL ВКонтакте').or(z.literal('')).optional(),
-      telegram: z.string().url('Некорректный URL Telegram').or(z.literal('')).optional(),
-      discord: z.string().url('Некорректный URL Discord').or(z.literal('')).optional(),
-      tiktok: z.string().url('Некорректный URL TikTok').or(z.literal('')).optional(),
-      youtube: z.string().url('Некорректный URL YouTube').or(z.literal('')).optional(),
-      spotify: z.string().url('Некорректный URL Spotify').or(z.literal('')).optional(),
-      yandex_music: z.string().url('Некорректный URL Яндекс Музыка').or(z.literal('')).optional(),
-      bandlink: z.string().url('Некорректный URL Band.link').or(z.literal('')).optional(),
-    })
+    .record(z.string())
     .optional(),
 });
 
