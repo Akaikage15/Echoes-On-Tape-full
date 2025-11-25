@@ -21,16 +21,14 @@ export const errorHandler = (
 ) => {
   // 1. Обработка ZodError (ошибки валидации)
   if (err instanceof ZodError) {
-    logWarn('Validation error', {
-      path: req.path,
-      method: req.method,
-      errors: err.errors,
+    logWarn(`Validation error at ${req.method} ${req.path}`, {
+      errors: err.issues,
     });
 
     return res.status(422).json({
       success: false,
       message: 'Ошибка валидации данных',
-      errors: err.errors.map((e) => ({
+      errors: err.issues.map((e: any) => ({
         field: e.path.join('.'),
         message: e.message,
       })),
@@ -39,11 +37,7 @@ export const errorHandler = (
 
   // 2. Обработка Prisma ошибок
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    logError('Prisma error', err, {
-      path: req.path,
-      method: req.method,
-      code: err.code,
-    });
+    logError(`Prisma error [${err.code}] at ${req.method} ${req.path}`, err);
 
     // P2002: Unique constraint violation
     if (err.code === 'P2002') {
@@ -74,20 +68,11 @@ export const errorHandler = (
   if (err instanceof AppError) {
     // Логируем в зависимости от типа ошибки
     if (err.isOperational) {
-      logWarn('Operational error', {
-        path: req.path,
-        method: req.method,
-        statusCode: err.statusCode,
-        message: err.message,
+      logWarn(`Operational error [${err.statusCode}] at ${req.method} ${req.path}: ${err.message}`, {
         context: err.context,
       });
     } else {
-      logError('Non-operational error', err, {
-        path: req.path,
-        method: req.method,
-        statusCode: err.statusCode,
-        context: err.context,
-      });
+      logError(`Non-operational error [${err.statusCode}] at ${req.method} ${req.path}`, err);
     }
 
     const response = formatErrorResponse(err);
@@ -95,13 +80,7 @@ export const errorHandler = (
   }
 
   // 4. Обработка неизвестных ошибок
-  logError('Unexpected error', err, {
-    path: req.path,
-    method: req.method,
-    body: req.body,
-    query: req.query,
-    params: req.params,
-  });
+  logError(`Unexpected error at ${req.method} ${req.path}`, err);
 
   // В production не показываем детали ошибки
   const statusCode = 500;
@@ -135,9 +114,7 @@ export const notFoundHandler = (
  * Обработчик необработанных промисов
  */
 export const handleUnhandledRejection = (reason: Error, promise: Promise<any>) => {
-  logError('Unhandled Promise Rejection', reason, {
-    promise: promise.toString(),
-  });
+  logError('Unhandled Promise Rejection', reason);
 
   // В production можно завершить процесс
   if (process.env.NODE_ENV === 'production' && !isOperationalError(reason)) {
