@@ -125,8 +125,9 @@ export function AccountPage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-12 flex items-start justify-between">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary overflow-hidden">
+            <div className="flex items-start gap-6">
+              {/* Аватар - фиксированный размер */}
+              <div className="flex-shrink-0 w-20 h-20 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary overflow-hidden">
                 {currentUser.avatar_url ? (
                   <img 
                     src={`http://localhost:3001${currentUser.avatar_url}`} 
@@ -137,7 +138,9 @@ export function AccountPage() {
                   <User className="h-10 w-10 text-primary" />
                 )}
               </div>
-              <div>
+              
+              {/* Информация профиля */}
+              <div className="flex-1 min-w-0">
                 <h1 className="font-['Bebas_Neue'] text-4xl tracking-wide mb-2">
                   {currentUser.name || 'Пользователь'}
                 </h1>
@@ -145,14 +148,14 @@ export function AccountPage() {
                 
                 {/* Биография */}
                 {currentUser.bio && (
-                  <p className="text-sm text-muted-foreground mt-2 max-w-md">
+                  <p className="text-sm text-muted-foreground mt-3 max-w-2xl leading-relaxed">
                     {currentUser.bio}
                   </p>
                 )}
                 
                 {/* Социальные сети */}
                 {currentUser.social_links && Object.keys(currentUser.social_links).length > 0 && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-3 mt-4">
                     {currentUser.social_links.instagram && (
                       <a 
                         href={currentUser.social_links.instagram} 
