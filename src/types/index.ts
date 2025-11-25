@@ -2,18 +2,24 @@
 
 export type SubscriptionTier = 'none' | 'lite' | 'fan' | 'pro';
 
+export type UserRole = 'ADMIN' | 'ARTIST' | 'PREMIUM_USER' | 'FREE_USER';
+
 export interface BackendUser {
   id: string;
   email: string;
   name?: string;
   avatar_url?: string;
+  role?: UserRole;
   subscriptionTier?: SubscriptionTier;
   subscriptionEndDate?: string;
 }
 
 export interface AuthResponse {
   user: BackendUser;
-  token: string;
+  token?: string; // Старый формат (для обратной совместимости)
+  accessToken?: string; // Новый формат
+  refreshToken?: string;
+  message?: string;
 }
 
 export interface User extends BackendUser {

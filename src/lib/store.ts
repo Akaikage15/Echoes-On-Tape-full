@@ -65,18 +65,19 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   fetchUserProfile: async () => {
     const token = get().token;
     if (!token) {
-      get().logout();
-      return;
+      return; // Не вызываем logout, просто выходим
     }
 
     try {
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       const response = await apiClient.get<{ user: BackendUser }>('/auth/profile');
       get().setCurrentUser(response.data.user);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch user profile:', error);
-      toast.error('Ошибка при загрузке профиля. Возможно, сессия истекла.');
-      get().logout(); // Clear token if profile fetching fails (e.g., token expired)
+      // Только если 401 или 403 - разлогиниваем
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        get().setToken(null);
+        get().setCurrentUser(null);
+      }
     }
   },
 }));

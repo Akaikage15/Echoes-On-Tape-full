@@ -10,6 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Роли пользователей
+enum UserRole {
+  ADMIN           // Полный доступ ко всему
+  ARTIST          // Управление своим контентом
+  PREMIUM_USER    // PRO подписка
+  FREE_USER       // Базовый доступ
+}
+
 // Пользователи платформы
 model User {
   id                   String         @id @default(uuid())
@@ -19,6 +27,7 @@ model User {
   avatar_url           String?
   bio                  String?        @db.Text
   social_links         Json?          @default("{}")
+  role                 UserRole       @default(FREE_USER)
   subscriptionTier     String         @default("none") // none, lite, fan, pro
   subscriptionEndDate  DateTime?
   created_at           DateTime       @default(now())

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AvatarUpload } from '@/components/AvatarUpload';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -78,7 +79,30 @@ const ProfileSettings = () => {
     setSaving(true);
 
     try {
-      await updateProfile(formData);
+      // Очищаем пустые поля перед отправкой
+      const cleanedData: UpdateProfileDto = {};
+      
+      if (formData.name?.trim()) cleanedData.name = formData.name.trim();
+      if (formData.email?.trim()) cleanedData.email = formData.email.trim();
+      if (formData.bio?.trim()) cleanedData.bio = formData.bio.trim();
+      
+      // Очищаем socialLinks от пустых значений
+      const cleanedSocialLinks: Record<string, string> = {};
+      if (formData.socialLinks?.instagram?.trim()) {
+        cleanedSocialLinks.instagram = formData.socialLinks.instagram.trim();
+      }
+      if (formData.socialLinks?.twitter?.trim()) {
+        cleanedSocialLinks.twitter = formData.socialLinks.twitter.trim();
+      }
+      if (formData.socialLinks?.spotify?.trim()) {
+        cleanedSocialLinks.spotify = formData.socialLinks.spotify.trim();
+      }
+      
+      if (Object.keys(cleanedSocialLinks).length > 0) {
+        cleanedData.socialLinks = cleanedSocialLinks;
+      }
+
+      await updateProfile(cleanedData);
       toast.success('Профиль успешно обновлён');
       setHasChanges(false);
     } catch (error: any) {
@@ -105,6 +129,17 @@ const ProfileSettings = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Аватар */}
+          <div className="space-y-2">
+            <Label>Аватар</Label>
+            <AvatarUpload 
+              currentAvatar={currentUser?.avatar_url}
+              onUploadSuccess={(url) => {
+                toast.success('Аватар обновлён');
+              }}
+            />
+          </div>
+
           {/* Имя */}
           <div className="space-y-2">
             <Label htmlFor="name">Имя</Label>

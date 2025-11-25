@@ -53,6 +53,16 @@ const SecuritySettings = () => {
       return;
     }
 
+    // Проверка на наличие строчных, заглавных букв и цифр
+    const hasLowerCase = /[a-z]/.test(passwordData.newPassword);
+    const hasUpperCase = /[A-Z]/.test(passwordData.newPassword);
+    const hasNumber = /\d/.test(passwordData.newPassword);
+
+    if (!hasLowerCase || !hasUpperCase || !hasNumber) {
+      toast.error('Пароль должен содержать строчные, заглавные буквы и цифры');
+      return;
+    }
+
     setChangingPassword(true);
 
     try {
@@ -118,7 +128,7 @@ const SecuritySettings = () => {
                 minLength={8}
               />
               <p className="text-sm text-muted-foreground">
-                Минимум 8 символов, включая буквы и цифры
+                Минимум 8 символов, включая строчные, заглавные буквы и цифры
               </p>
             </div>
 

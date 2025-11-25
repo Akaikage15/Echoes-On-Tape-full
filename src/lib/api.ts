@@ -141,3 +141,55 @@ export const logout = async (refreshToken?: string) => {
   const response = await apiClient.post('/auth/logout', { refreshToken });
   return response.data;
 };
+
+// ============================================
+// UPLOAD API
+// ============================================
+
+/**
+ * Загрузить аватар пользователя
+ * @param file - файл изображения
+ */
+export const uploadAvatar = async (file: File) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  
+  const response = await apiClient.post('/upload/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Загрузить обложку релиза
+ * @param file - файл изображения
+ */
+export const uploadCover = async (file: File) => {
+  const formData = new FormData();
+  formData.append('cover', file);
+  
+  const response = await apiClient.post('/upload/cover', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Загрузить аудио-файл
+ * @param file - аудио файл
+ */
+export const uploadAudio = async (file: File) => {
+  const formData = new FormData();
+  formData.append('audio', file);
+  
+  const response = await apiClient.post('/upload/audio', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};

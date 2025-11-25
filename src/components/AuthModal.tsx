@@ -36,7 +36,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     setError(null);
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
-      setToken(response.data.token);
+      const token = response.data.accessToken || response.data.token;
+      if (token) {
+        setToken(token);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
+      }
       setCurrentUser(response.data.user);
       toast.success('Вход выполнен успешно!');
       onClose();
@@ -55,7 +61,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     setError(null);
     try {
       const response = await apiClient.post<AuthResponse>('/auth/register', { email, password, name });
-      setToken(response.data.token);
+      const token = response.data.accessToken || response.data.token;
+      if (token) {
+        setToken(token);
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
+      }
       setCurrentUser(response.data.user);
       toast.success('Регистрация прошла успешно!');
       onClose();

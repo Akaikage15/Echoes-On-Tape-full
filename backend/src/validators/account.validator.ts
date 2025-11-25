@@ -15,9 +15,9 @@ export const updateProfileSchema = z.object({
   avatar: z.string().url('Некорректный URL аватара').optional(),
   socialLinks: z
     .object({
-      instagram: z.string().url('Некорректный URL Instagram').optional(),
-      twitter: z.string().url('Некорректный URL Twitter').optional(),
-      spotify: z.string().url('Некорректный URL Spotify').optional(),
+      instagram: z.string().url('Некорректный URL Instagram').or(z.literal('')).optional(),
+      twitter: z.string().url('Некорректный URL Twitter').or(z.literal('')).optional(),
+      spotify: z.string().url('Некорректный URL Spotify').or(z.literal('')).optional(),
     })
     .optional(),
 });

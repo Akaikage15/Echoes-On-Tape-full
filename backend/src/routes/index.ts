@@ -15,6 +15,7 @@ import exclusiveRoutes from './exclusive.routes';
 import pollRoutes from './poll.routes';
 import proLibraryRoutes from './pro-library.routes';
 import demoRoutes from './demo.routes';
+import uploadRoutes from './upload.routes';
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/exclusives', exclusiveRoutes);
 router.use('/polls', pollRoutes);
 router.use('/pro-library', proLibraryRoutes);
 router.use('/demos', demoRoutes);
+router.use('/upload', uploadRoutes);
 
 export default router;
