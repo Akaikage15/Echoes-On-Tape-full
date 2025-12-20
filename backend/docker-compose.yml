@@ -20,6 +20,21 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis кэш
+  redis:
+    image: redis:7-alpine
+    container_name: echoes-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Backend API
   backend:
     build:
@@ -30,10 +45,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://${DB_USER:-echoes_user}:${DB_PASSWORD:-echoes_password}@postgres:5432/${DB_NAME:-echoes_on_tape}
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     ports:
@@ -45,3 +63,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
