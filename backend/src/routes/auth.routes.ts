@@ -8,16 +8,17 @@ import { authController } from '../controllers';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { registerSchema, loginSchema } from '../validators';
+import { authLimiter } from '../middleware/rate-limit.middleware';
 
 const router = Router();
 
-// POST /api/auth/register - с валидацией
-router.post('/register', validate(registerSchema, 'body'), (req, res, next) =>
+// POST /api/auth/register - с валидацией и rate limit
+router.post('/register', authLimiter, validate(registerSchema, 'body'), (req, res, next) =>
   authController.register(req, res, next)
 );
 
-// POST /api/auth/login - с валидацией
-router.post('/login', validate(loginSchema, 'body'), (req, res, next) =>
+// POST /api/auth/login - с валидацией и rate limit
+router.post('/login', authLimiter, validate(loginSchema, 'body'), (req, res, next) =>
   authController.login(req, res, next)
 );
 

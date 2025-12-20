@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
+import { globalLimiter } from './middleware/rate-limit.middleware';
 
 const app = express();
 
@@ -33,6 +34,9 @@ app.get('/', (req, res) => {
     architecture: 'Layered (Controllers → Services → Repositories)',
   });
 });
+
+// Rate Limiting
+app.use('/api', globalLimiter);
 
 // API Routes
 app.use('/api', routes);
