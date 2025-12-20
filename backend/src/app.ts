@@ -10,6 +10,8 @@ import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { requestLogger } from './middleware/logger.middleware';
 import { globalLimiter } from './middleware/rate-limit.middleware';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.config';
 
 const app = express();
 
@@ -34,6 +36,9 @@ app.get('/', (req, res) => {
     architecture: 'Layered (Controllers → Services → Repositories)',
   });
 });
+
+// Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rate Limiting
 app.use('/api', globalLimiter);
