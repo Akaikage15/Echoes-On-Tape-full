@@ -17,3 +17,10 @@ GEMINI.md\n# Build output\nbuild/\ndist/\n\n# Log files\nnpm-debug.log*\nyarn-de
 backend/logs/*.log
 
 backend/uploads/*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
