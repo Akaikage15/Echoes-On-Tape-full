@@ -1,12 +1,19 @@
 # Статус выполнения проекта
 
-## Последнее обновление: 21.11.2024
+## Последнее обновление: 20.12.2025
 
 ---
 
 # Статус выполнения задач по проекту "Echoes On Tape"
 
 Этот документ отслеживает прогресс выполнения задач из `doc/roadmap.md`.
+
+---
+**2025-12-20**
+
+*   **Коммит:** `revert: Откат изменений, связанных с деплоем на Vercel`
+*   **Описание:** Откачены все изменения, связанные с подготовкой к деплою на Vercel, из веток `main` и `dev`. Проект возвращен к состоянию до коммита `ea8ac60`.
+*   **Ветка:** `main`, `dev`
 
 ---
 **2025-11-19**
@@ -1296,43 +1303,108 @@ backend/logs/
 
 - ✅ Добавлено поле `role` в модель User
 
-- ✅ Создан `rbac.middleware.ts`:
+- ✅ Создана таблица `refresh_tokens` в БД
 
-- `requireRole()` - проверка роли пользователя
+- ✅ Реализован `TokenService`:
 
-- `requireSubscription()` - проверка уровня подписки
+- `generateAccessToken()` - генерация JWT (15 минут)
 
-- `requireOwnership()` - проверка владения ресурсом
+- `generateRefreshToken()` - генерация refresh token (7 дней)
 
-- `requireAdmin` - хелпер для админов
+- `verifyRefreshToken()` - проверка валидности
 
-- `requireArtist` - хелпер для артистов
+- `revokeRefreshToken()` - отзыв токена (logout)
 
-- ✅ Обновлён `auth.middleware.ts`:
+- `revokeAllUserTokens()` - logout со всех устройств
 
-- Загрузка полной информации о пользователе из БД
+- `cleanupExpiredTokens()` - очистка истёкших токенов
 
-- Добавление роли и подписки в `req.user`
+- ✅ Обновлён `AuthController`:
 
-- ✅ Создана миграция `add_user_roles`
+- `/api/auth/register` - выдаёт access + refresh токены
 
-- ✅ Написаны тесты для RBAC
+- `/api/auth/login` - выдаёт access + refresh токены
 
-- ✅ Создана документация `RBAC_GUIDE.md`
+- `/api/auth/refresh` - обновление access token
+
+- `/api/auth/logout` - удаление refresh token
+
+- ✅ Refresh токены сохраняются в httpOnly cookies (безопасность)
+
+- ✅ Добавлен `cookie-parser` middleware
+
+- ✅ Написаны тесты (8 тестов, все проходят)
 
   
 
 **Frontend:**
 
-- ✅ Добавлен тип `UserRole` в `types/index.ts`
+- ✅ Обновлён `api.ts`:
 
-- ✅ Обновлён интерфейс `BackendUser` с полем `role`
+- Автоматическое обновление токена при 401 ошибке
+
+- Повторная отправка запроса с новым токеном
+
+- Разлогин при неудачном refresh
+
+- ✅ Обновлён `store.ts`:
+
+- Сохранение refresh token в localStorage
+
+- Отправка запроса на `/auth/logout` при выходе
+
+- Очистка обоих токенов
+
+- ✅ Функции `refreshAccessToken()` и `logout()` в `api.ts`
 
   
 
 ---
 
   
+
+## 📊 Статистика
+
+  
+
+**Backend:**
+
+- Новых эндпоинтов: 7
+
+- Новых контроллеров: 1 (AccountController)
+
+- Новых сервисов: 1 (TokenService)
+
+- Новых валидаторов: 1 (account.validator)
+
+- Новых тестов: 17 (все проходят ✅)
+
+- Покрытие тестами: ~75%
+
+  
+
+**Frontend:**
+
+- Новых страниц: 3 (SettingsPage, ProfileSettings, SecuritySettings)
+
+- Новых API функций: 6
+
+- Новых роутов: 1 (/settings)
+
+  
+
+**База данных:**
+
+- Новых таблиц: 1 (refresh_tokens)
+
+- Новых полей в User: 2 (bio, social_links)
+
+- Миграций: 1
+
+  
+
+---
+
 
 ### 2.4 Обработка загрузки файлов ✅
 
@@ -1549,21 +1621,3 @@ backend/logs/
 - Testing: Jest, Supertest
 
 - Database: PostgreSQL
-
-  
-
-**Архитектурные решения:**
-
-- Layered Architecture (Controllers → Services → Repositories)
-
-- JWT для access tokens (короткоживущие)
-
-- Refresh tokens в БД (долгоживущие)
-
-- Auto-refresh механизм на клиенте
-
-- Валидация на обоих уровнях (клиент + сервер)
-
-- RBAC система для гибкого управления доступом
-
-- Локальное хранилище файлов (готово к миграции на S3/Cloudinary)
