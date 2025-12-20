@@ -7,23 +7,12 @@ import {
   Tag,
   LogOut,
   Crown,
-  Calendar,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { SocialLinks } from '../components/SocialLinks';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '../components/ui/alert-dialog';
+import { SubscriptionStatusCard } from '../components/SubscriptionStatusCard';
 import { useSessionStore } from '../lib/store';
 import { useSubscription } from '../hooks/useSubscription';
 import { SubscriptionTier } from '../types';
@@ -93,19 +82,6 @@ export function AccountPage() {
         return 'bg-primary/60 text-primary-foreground';
       default:
         return 'bg-secondary text-secondary-foreground';
-    }
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Не указано';
-    try {
-      return new Date(dateString).toLocaleDateString('ru-RU', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    } catch {
-      return 'Неверная дата';
     }
   };
 
@@ -204,85 +180,11 @@ export function AccountPage() {
                   <CreditCard className="h-8 w-8 text-primary" />
                 </div>
 
-                {hasSubscription ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Тариф</p>
-                        <p className="font-['Bebas_Neue'] text-2xl">
-                          {getTierLabel(currentUser.subscriptionTier)}
-                        </p>
-                      </div>
-                      <Badge
-                        className={getTierColor(currentUser.subscriptionTier)}
-                      >
-                        Активна
-                      </Badge>
-                    </div>
-
-                    {subscriptionEndDate && (
-                      <div className="flex items-center gap-2 p-4 bg-secondary/50 rounded-lg">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Действует до
-                          </p>
-                          <p className="font-medium">
-                            {formatDate(subscriptionEndDate)}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3">
-                      <Link to="/pricing" className="flex-1">
-                        <Button variant="outline" className="w-full">
-                          Изменить тариф
-                        </Button>
-                      </Link>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="flex-1 text-destructive hover:text-destructive"
-                          >
-                            Отменить подписку
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Отменить подписку?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Автопродление будет отключено. Это действие нельзя
-                              будет отменить.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Назад</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={handleCancelSubscription}
-                            >
-                              Отменить подписку
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">
-                      У вас нет активной подписки
-                    </p>
-                    <Link to="/pricing">
-                      <Button className="bg-primary text-primary-foreground hover:bg-accent-secondary">
-                        Оформить подписку
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                <SubscriptionStatusCard 
+                  tier={currentUser.subscriptionTier}
+                  endDate={subscriptionEndDate}
+                  onCancel={handleCancelSubscription}
+                />
               </div>
             </TabsContent>
 
