@@ -1,20 +1,29 @@
 import Redis from 'ioredis';
-import { logInfo, logError } from '../utils/logger';
+import { logInfo, logError, logWarn } from '../utils/logger';
 
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
 export const redis = new Redis(redisUrl, {
   maxRetriesPerRequest: 3,
   retryStrategy(times) {
-    // Не подключаться, если не настроен URL в dev режиме (чтобы не спамить ошибками если нет redis)
-    if (process.env.NODE_ENV === 'development' && !process.env.REDIS_URL) {
-      return null;
+    // Если мы в dev-режиме и Redis недоступен, не пытаемся реконнектиться бесконечно
+    if (process.env.NODE_ENV !== 'production' && times > 3) {
+      logWarn('Redis unavailable, caching disabled for this session.');
+      return null; // Stop retrying
     }
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
-  // Не падать при ошибке подключения в dev режиме
-  lazyConnect: process.env.NODE_ENV === 'development',
+  // Не падать при ошибке подключения
+  lazyConnect: true,
+});
+
+redis.connect().catch((err) => {
+  if (process.env.NODE_ENV !== 'production') {
+    logWarn('Failed to connect to Redis. Caching will be disabled.');
+  } else {
+    logError('Redis connection failed', err);
+  }
 });
 
 redis.on('connect', () => {
@@ -22,10 +31,10 @@ redis.on('connect', () => {
 });
 
 redis.on('error', (err) => {
-  // Логируем ошибку только если это не ECONNREFUSED в dev режиме (нет запущенного Redis)
-  if (process.env.NODE_ENV === 'development' && err.message.includes('ECONNREFUSED')) {
-    // silently ignore in dev if local redis is not running
+  // Игнорируем ошибки соединения в dev режиме после неудачной попытки
+  if (process.env.NODE_ENV !== 'production') {
+    // silent
   } else {
-    logError('Redis connection error', err);
+    logError('Redis error', err);
   }
 });

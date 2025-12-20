@@ -15,8 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from './ui/alert-dialog';
-import { SubscriptionTier } from '../types';
-import { cn } from '../lib/utils';
+import { cn } from './ui/utils';
 
 interface SubscriptionStatusCardProps {
   tier: SubscriptionTier;
