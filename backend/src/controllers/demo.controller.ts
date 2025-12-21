@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getAllDemos, getDemoById, createDemo, updateDemoStatus } from '../utils/demos-db';
+import { demoRepository } from '../repositories/demo.repository';
 
 /**
  * Получить все демо
@@ -12,7 +12,7 @@ import { getAllDemos, getDemoById, createDemo, updateDemoStatus } from '../utils
  */
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const demos = await getAllDemos();
+    const demos = await demoRepository.findAll();
     res.status(200).json(demos);
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const demo = await getDemoById(req.params.id);
+    const demo = await demoRepository.findById(req.params.id);
     
     if (!demo) {
       return res.status(404).json({ message: 'Демо не найдено' });
@@ -57,14 +57,13 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
       });
     }
     
-    const demo = await createDemo({
+    const demo = await demoRepository.create({
       user_id: userId,
       artist_name,
       email,
       track_url,
       genre,
       comment: comment || '',
-      upload_date: new Date().toISOString(),
     });
     
     res.status(201).json(demo);
@@ -87,7 +86,7 @@ export const updateStatus = async (req: Request, res: Response, next: NextFuncti
     
     // updateDemoStatus принимает только id и status
     // feedback можно добавить в будущем, расширив функцию
-    const demo = await updateDemoStatus(req.params.id, status);
+    const demo = await demoRepository.updateStatus(req.params.id, status);
     
     if (!demo) {
       return res.status(404).json({ message: 'Демо не найдено' });

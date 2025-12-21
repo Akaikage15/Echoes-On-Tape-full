@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getAllExclusives, getExclusiveById } from '../utils/exclusives-db';
+import { exclusiveRepository } from '../repositories/exclusive.repository';
 
 /**
  * Получить весь эксклюзивный контент
@@ -12,7 +12,7 @@ import { getAllExclusives, getExclusiveById } from '../utils/exclusives-db';
  */
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const exclusives = await getAllExclusives();
+    const exclusives = await exclusiveRepository.findAll();
     res.status(200).json(exclusives);
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const exclusive = await getExclusiveById(req.params.id);
+    const exclusive = await exclusiveRepository.findById(req.params.id);
     
     if (!exclusive) {
       return res.status(404).json({ message: 'Контент не найден' });

@@ -62,8 +62,6 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
     const updates: UpdateProfileDto = req.body;
 
-    console.log('updateProfile called:', { userId, updates });
-
     if (!userId) {
       return res.status(401).json({ error: 'Не авторизован' });
     }
@@ -81,13 +79,6 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         return res.status(400).json({ error: 'Email уже используется' });
       }
     }
-
-    console.log('Updating user with data:', {
-      name: updates.name,
-      email: updates.email,
-      bio: updates.bio,
-      social_links: updates.socialLinks,
-    });
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },

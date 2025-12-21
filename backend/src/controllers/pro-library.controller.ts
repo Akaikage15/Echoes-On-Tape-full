@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getAllProLibraryItems, getProLibraryItemById } from '../utils/pro-library-db';
+import { proLibraryRepository } from '../repositories/pro-library.repository';
 
 /**
  * Получить все элементы PRO-библиотеки
@@ -12,7 +12,7 @@ import { getAllProLibraryItems, getProLibraryItemById } from '../utils/pro-libra
  */
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const items = await getAllProLibraryItems();
+    const items = await proLibraryRepository.findAll();
     res.status(200).json(items);
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const item = await getProLibraryItemById(req.params.id);
+    const item = await proLibraryRepository.findById(req.params.id);
     
     if (!item) {
       return res.status(404).json({ message: 'Элемент не найден' });

@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getAllPolls, getPollById, submitVote } from '../utils/polls-db';
+import { pollRepository } from '../repositories/poll.repository';
 
 /**
  * Получить все голосования
@@ -12,7 +12,7 @@ import { getAllPolls, getPollById, submitVote } from '../utils/polls-db';
  */
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const polls = await getAllPolls();
+    const polls = await pollRepository.findAll();
     res.status(200).json(polls);
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const poll = await getPollById(req.params.id);
+    const poll = await pollRepository.findById(req.params.id);
     
     if (!poll) {
       return res.status(404).json({ message: 'Голосование не найдено' });
@@ -54,16 +54,15 @@ export const vote = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(401).json({ message: 'Требуется авторизация' });
     }
     
-    // submitVote принимает только pollId и optionId
-    // В реальном приложении нужно добавить userId в функцию для предотвращения повторных голосов
-    const result = await submitVote(req.params.id, optionId);
-    
-    if (!result) {
-      return res.status(404).json({ message: 'Голосование или опция не найдены' });
-    }
+    const result = await pollRepository.vote(userId, req.params.id, optionId);
     
     res.status(200).json(result);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Вы уже проголосовали в этом опросе') {
+      return res.status(409).json({ message: error.message });
+    } else if (error.message === 'Голосование не найдено') {
+      return res.status(404).json({ message: error.message });
+    }
     next(error);
   }
 };

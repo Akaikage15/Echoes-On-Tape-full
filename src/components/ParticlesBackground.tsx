@@ -28,7 +28,7 @@ export const ParticlesBackground = () => {
   }, []);
 
   const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log(container);
+    // Particles loaded callback
   };
 
   const options: ISourceOptions = useMemo(

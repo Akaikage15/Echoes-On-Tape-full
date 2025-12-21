@@ -55,10 +55,8 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
     // Загрузка
     try {
       setUploading(true);
-      console.log('Загрузка аватара:', file.name, file.size, file.type);
       
       const response = await uploadAvatar(file);
-      console.log('Ответ сервера:', response);
       
       // Обновляем пользователя в store
       if (currentUser) {
@@ -73,13 +71,6 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       }
     } catch (err: any) {
       console.error('Ошибка загрузки аватара:', err);
-      console.error('Детали ошибки:', {
-        response: err.response,
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data
-      });
-      console.error('Данные ответа сервера:', err.response?.data);
       
       const errorMessage = err.response?.data?.error || err.message || 'Ошибка загрузки';
       setError(errorMessage);

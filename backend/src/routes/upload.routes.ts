@@ -25,17 +25,8 @@ const handleMulterError = (err: any, req: Request, res: Response, next: NextFunc
 router.post('/avatar', 
   authenticateToken,
   (req, res, next) => {
-    console.log('Upload route - before multer');
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('Body:', req.body);
-    console.log('Files:', req.files);
-    
     const upload = uploadAvatar.single('avatar');
     upload(req, res, (err: any) => {
-      console.log('Upload route - after multer, err:', err);
-      console.log('Upload route - req.file:', req.file);
-      console.log('Upload route - req.body after multer:', req.body);
-      
       if (err) {
         console.error('Multer error:', err);
         return res.status(400).json({ error: err.message });

@@ -27,7 +27,7 @@ describe('Releases Controller', () => {
       data: {
         name: 'Test Artist',
         bio: 'Test bio',
-        imageUrl: 'https://example.com/image.jpg',
+        photo_url: 'https://example.com/image.jpg',
       },
     });
     artistId = artist.id;
@@ -39,19 +39,19 @@ describe('Releases Controller', () => {
         data: [
           {
             title: 'Release 1',
-            artistId,
-            releaseDate: new Date(),
-            coverUrl: 'https://example.com/cover1.jpg',
+            artist_id: artistId,
+            release_date: new Date(),
+            cover_art_url: 'https://example.com/cover1.jpg',
             type: 'ALBUM',
-            isPremium: false,
+            description: 'Description 1',
           },
           {
             title: 'Release 2',
-            artistId,
-            releaseDate: new Date(),
-            coverUrl: 'https://example.com/cover2.jpg',
+            artist_id: artistId,
+            release_date: new Date(),
+            cover_art_url: 'https://example.com/cover2.jpg',
             type: 'EP',
-            isPremium: true,
+            description: 'Description 2',
           },
         ],
       });
@@ -80,11 +80,11 @@ describe('Releases Controller', () => {
       const release = await prisma.release.create({
         data: {
           title: 'Single Release',
-          artistId,
-          releaseDate: new Date(),
-          coverUrl: 'https://example.com/cover.jpg',
+          artist_id: artistId,
+          release_date: new Date(),
+          cover_art_url: 'https://example.com/cover.jpg',
           type: 'SINGLE',
-          isPremium: false,
+          description: 'Single Description',
         },
       });
       releaseId = release.id;
@@ -112,11 +112,11 @@ describe('Releases Controller', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({
           title: 'New Release',
-          artistId,
-          releaseDate: new Date().toISOString(),
-          coverUrl: 'https://example.com/new-cover.jpg',
+          artist_id: artistId,
+          release_date: new Date().toISOString(),
+          cover_art_url: 'https://example.com/new-cover.jpg',
           type: 'ALBUM',
-          isPremium: false,
+          description: 'New Description',
         });
 
       expect(response.status).toBe(201);
@@ -129,7 +129,7 @@ describe('Releases Controller', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({
           title: '',
-          artistId: 'invalid-id',
+          artist_id: 'invalid-id',
         });
 
       expect(response.status).toBe(400);
@@ -140,7 +140,7 @@ describe('Releases Controller', () => {
         .post('/api/releases')
         .send({
           title: 'New Release',
-          artistId,
+          artist_id: artistId,
         });
 
       expect(response.status).toBe(401);

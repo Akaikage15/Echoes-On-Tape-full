@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getAllMerchItems, getMerchItemById } from '../utils/merch-db';
+import { merchRepository } from '../repositories/merch.repository';
 
 /**
  * Получить все товары мерча
@@ -12,7 +12,7 @@ import { getAllMerchItems, getMerchItemById } from '../utils/merch-db';
  */
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const merchItems = await getAllMerchItems();
+    const merchItems = await merchRepository.findAll();
     res.status(200).json(merchItems);
   } catch (error) {
     next(error);
@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
  */
 export const getById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const merchItem = await getMerchItemById(req.params.id);
+    const merchItem = await merchRepository.findById(req.params.id);
     
     if (!merchItem) {
       return res.status(404).json({ message: 'Товар не найден' });
