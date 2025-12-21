@@ -2,6 +2,9 @@
 gha-creds-*.json
 
 .env
+.kiro
+.vscode
+.github
 
 frontend_analysis_prompt.md
 
