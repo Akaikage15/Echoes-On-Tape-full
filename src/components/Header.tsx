@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, Music } from 'lucide-react';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { useSessionStore } from '../lib/store';
 import { AuthModal } from './AuthModal';
 
@@ -56,6 +57,14 @@ export function Header() {
                   <Button variant="ghost" size="sm" className="gap-2">
                     <User className="h-4 w-4" />
                     <span className="hidden sm:inline">{currentUser.name}</span>
+                    {currentUser.subscriptionTier && currentUser.subscriptionTier !== 'none' && (
+                      <Badge 
+                        variant="secondary" 
+                        className="ml-1 h-5 px-1.5 text-[10px] uppercase pointer-events-none"
+                      >
+                        {currentUser.subscriptionTier}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>
               ) : (
