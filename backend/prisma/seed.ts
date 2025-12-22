@@ -214,6 +214,12 @@ async function main() {
         price: 500,
         type: 'accessory',
       },
+      {
+        title: 'Limited Edition Poster - "Dark Echoes"',
+        image: '/images/merch-poster.jpg',
+        price: 1200,
+        type: 'poster',
+      },
     ],
   });
 
