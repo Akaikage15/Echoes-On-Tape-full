@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { AppError } from '../utils/errors';
+import { NotFoundError, ForbiddenError } from '../utils/errors';
 
 const prisma = new PrismaClient();
 
@@ -68,8 +68,8 @@ export class AdminController {
     
     // Нельзя удалить самого себя или другого админа
     const targetUser = await prisma.user.findUnique({ where: { id } });
-    if (!targetUser) throw new AppError(404, 'User not found');
-    if (targetUser.role === 'ADMIN') throw new AppError(403, 'Cannot delete admin');
+    if (!targetUser) throw new NotFoundError('User not found');
+    if (targetUser.role === 'ADMIN') throw new ForbiddenError('Cannot delete admin');
 
     await prisma.user.delete({ where: { id } });
     res.json({ message: 'User deleted' });
