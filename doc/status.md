@@ -13,13 +13,15 @@
 
 ### 4.1 Микросервисная архитектура 🔄
 **Дата:** 22.12.2025
-**Статус:** В процессе (Начальная настройка)
+**Статус:** В процессе (Разработка сервисов)
 - ✅ Создана ветка `feature/microservices-init`
 - ✅ Разработан план миграции `backend/MICROSERVICES_MIGRATION_PLAN.md`
 - ✅ Создана структура Monorepo (`apps/`, `libs/`)
 - ✅ Реализован каркас **API Gateway** (Express Proxy)
-- ✅ Реализован каркас **Auth Service**
-- ✅ Создана библиотека `@echoes/shared-types`
+- ✅ Реализован **Auth Service**:
+  - Настроена Prisma (Shared DB Schema)
+  - Перенесена логика генерации токенов (JWT, Refresh)
+  - Реализованы эндпоинты Register/Login/Refresh/Logout
 - ✅ Настроен `docker-compose.microservices.yml` для гибридного запуска
 
 ---
