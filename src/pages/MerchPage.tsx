@@ -183,15 +183,17 @@ export function MerchPage() {
                         {item.title}
                       </h3>
 
-                      {item.sizes && item.sizes.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {item.sizes.map(size => (
-                            <Badge key={size} variant="outline" className="text-xs">
-                              {size}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      <div className="min-h-[28px] mt-2">
+                        {item.sizes && item.sizes.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {item.sizes.map(size => (
+                              <Badge key={size} variant="outline" className="text-xs">
+                                {size}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
 
                       <div className="flex items-baseline gap-2 mt-3">
                         {discount > 0 ? (
