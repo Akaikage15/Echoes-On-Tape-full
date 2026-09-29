@@ -12,7 +12,7 @@
 
 <p align="center">
   <img
-    src="./images/logo-echoes-no-tape-mono.png"
+    src="./images/logo-echoes-no-tape.jpg"
     alt="Echoes On Tape"
     width="180"
   />
