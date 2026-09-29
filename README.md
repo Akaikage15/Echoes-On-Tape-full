@@ -14,7 +14,7 @@
   <img
     src="./images/82b55ea7-f040-4e0f-b663-f51c990eb098.png"
     alt="Echoes On Tape"
-    width="180"
+    style="border-radius: 24 px;"
   />
 </p>
 
