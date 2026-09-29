@@ -688,16 +688,6 @@ A digital home where music, artists, community, editorial content and direct sup
 
 ---
 
-## License
-
-A dedicated open-source license is being prepared for the repository.
-
-Before the project is promoted as a reusable open-source base for other labels, an explicit license will be added so that the permissions for using, modifying and redistributing the code are clear.
-
-For this project, a permissive license such as **MIT** is currently being considered.
-
----
-
 ## Acknowledgements
 
 Echoes On Tape is built on top of many open-source projects, including:
