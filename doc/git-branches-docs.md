@@ -12,78 +12,64 @@
 ### `dev`
 - **Назначение:** Основная ветка разработки.
 - **Статус:** Active. Старт **Фазы 4** (Future).
-- **Текущее состояние (21.12.2025):**
-    - Синхронизирована с `main`.
-    - Готова к внедрению микросервисов и новых фич.
+
+---
+
+## 🔄 Активные ветки разработки (Фаза 4)
+
+| Ветка | Назначение | Статус |
+|-------|------------|--------|
+| `feature/microservices-init` | 4.1 Начальная структура микросервисов, Gateway, Auth Service | Active 🟢 |
 
 ---
 
 ## ✅ Завершённые и слитые ветки (Merged)
 
-### Фаза 3: Желательные улучшения (Nice-to-Have)
-| Ветка | Назначение | Статус |
-|-------|------------|--------|
-| `feature/ui-improvements` | P3.1 Визуальные доработки (карточки подписок, UI) | Merged → `dev` |
-| `feature/redis-cache` | P3.2 Кэширование (Redis, CacheService) | Merged → `dev` |
-| `feature/rate-limiting` | P3.3 Защита API (Rate Limiting Middleware) | Merged → `dev` |
-| `feature/api-docs` | P3.4 Документация (Swagger/OpenAPI) | Merged → `dev` |
-| `feature/e2e-tests` | P3.6 E2E тесты (Playwright) - *Частично* | Merged → `dev` |
+### Фаза 3: Nice-to-Have (v1.0.0 Release)
+| Ветка | Описание | Дата слияния |
+|-------|----------|--------------|
+| `feature/phase-3-ui-improvements` | UI доработки, улучшение UX подписок, новые карточки | 20.12.2025 |
+| `feature/phase-3-caching-optimization` | Внедрение Redis, кеширование релизов | 20.12.2025 |
+| `feature/rate-limiting` | Защита API (express-rate-limit) | 20.12.2025 |
+| `feature/api-docs` | Swagger документация (/api-docs) | 20.12.2025 |
+| `feature/e2e-tests` | Настройка Playwright и первые E2E тесты | 20.12.2025 |
 
-### Фаза 2: Важные улучшения (Should-Have)
-| Ветка | Назначение | Статус |
-|-------|------------|--------|
-| `feature/phase-2-account-settings-refresh-tokens` | P2.1 Настройки аккаунта, P2.2 Refresh-токены | Merged → `dev` |
-| `feature/rbac-and-file-upload` | P2.3 RBAC, P2.4 Загрузка файлов (Multer), P2.5 Профиль | Merged → `dev` |
-| `feature/ci-cd-error-handling` | P2.6 CI/CD, P2.7 Обработка ошибок | Merged → `dev` |
+### Фаза 2: Core & Security
+| Ветка | Описание | Дата слияния |
+|-------|----------|--------------|
+| `feature/rbac-and-file-upload` | Ролевая модель (RBAC), загрузка файлов (Multer), CI/CD | 25.11.2024 |
+| `feature/phase-2-account-settings-refresh-tokens` | Настройки аккаунта, соцсети, Refresh Tokens, Security | 21.11.2024 |
 
-### Фаза 1: Критические улучшения (Must-Have)
-| Ветка | Назначение | Статус |
-|-------|------------|--------|
-| `feature/phase-1-database-architecture` | P1.1 БД, P1.2 Архитектура, P1.3 Валидация, P1.4 Тесты | Merged → `dev` |
+### Фаза 1: Backend Foundation
+| Ветка | Описание | Дата слияния |
+|-------|----------|--------------|
+| `feature/phase-1-database-architecture` | PostgreSQL, Prisma, Слоистая архитектура, Jest, Zod, Winston | 20.11.2024 |
 
-### Фаза 0: Hotfix
-| Ветка | Назначение | Статус |
-|-------|------------|--------|
-| `feature/account-page-fix` | Исправление багов ЛК | Merged → `dev` |
-| `feature/replace-mock-data` | Замена моков на API | Merged → `dev` |
-
----
-
-## 🛠️ Правила работы с ветками
-
-1. **Создание:** Всегда от `dev`.
-   ```bash
-   git checkout dev && git pull
-   git checkout -b feature/<название-задачи>
-   ```
-
-2. **Именование:**
-   - `feature/...` — новый функционал
-   - `fix/...` — багфиксы
-   - `refactor/...` — рефакторинг
-   - `docs/...` — документация
-
-3. **Коммиты:**
-   - Формат: `type: message` (напр. `feat: добавил кэширование`, `fix: исправил валидацию`)
-   - Язык: Русский
-
-4. **Мерж:**
-   - Через Pull Request (или merge локально при одиночной разработке).
-   - Обязательно: Прохождение тестов перед мержем.
-   - Удаление ветки после мержа.
+### Фаза 0: MVP & Frontend Fixes
+| Ветка | Описание | Статус |
+|-------|----------|--------|
+| `feature/account-page-fix` | Исправление логики подписок и ЛК | Merged |
+| `feature/replace-mock-data` | Переход с моков на реальное API | Merged |
+| `feature/auth-backend` | Базовая аутентификация | Merged |
+| `feature/blog-posts-api` | API для блога | Merged |
+| `feature/subscription-system` | Система подписок (Backend + Frontend) | Merged |
+| `feature/submit-demo-frontend` | Форма отправки демо | Merged |
+| `feature/redesign` | Редизайн (Liquid Glass, цвета) | Merged |
 
 ---
 
-## 📊 Текущий статус проекта
+## 📦 Правила именования веток
 
-**Прогресс по Roadmap:**
-- [x] Фаза 0: Hotfix
-- [x] Фаза 1: Critical (Architecture, DB, Tests)
-- [x] Фаза 2: Important (Auth, Uploads, Account)
-- [x] Фаза 3: Nice-to-Have (UI, Cache, Limits, Docs) - *Основные задачи выполнены*
-- [ ] Фаза 4: Future (Microservices, etc.)
+- `feature/<name>` — новая функциональность
+- `fix/<name>` — исправление ошибок
+- `refactor/<name>` — рефакторинг кода
+- `docs/<name>` — обновление документации
+- `test/<name>` — добавление тестов
 
-**Следующие шаги:**
-- Финальная проверка перед деплоем.
-- Настройка мониторинга (Prometheus/Grafana) - *Опционально*.
-- Запуск на сервере.
+## 🔄 Процесс работы (Workflow)
+
+1. Создать ветку от `dev`: `git checkout -b feature/my-feature dev`
+2. Выполнить задачу, сделать коммиты (`feat: ...`, `fix: ...`).
+3. Открыть Pull Request в `dev`.
+4. После Code Review и прохождения тестов — Merge.
+5. После завершения фазы/релиза — Merge `dev` -> `main`.

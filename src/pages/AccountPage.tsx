@@ -75,11 +75,9 @@ export function AccountPage() {
   const getTierColor = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'pro':
-        return 'bg-primary text-primary-foreground';
       case 'fan':
-        return 'bg-primary/80 text-primary-foreground';
       case 'lite':
-        return 'bg-primary/60 text-primary-foreground';
+        return 'bg-primary text-primary-foreground';
       default:
         return 'bg-secondary text-secondary-foreground';
     }
@@ -113,9 +111,17 @@ export function AccountPage() {
               
               {/* Информация профиля */}
               <div className="flex-1 min-w-0">
-                <h1 className="font-['Bebas_Neue'] text-4xl tracking-wide mb-2">
-                  {currentUser.name || 'Пользователь'}
-                </h1>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h1 className="font-['Bebas_Neue'] text-4xl tracking-wide">
+                    {currentUser.name || 'Пользователь'}
+                  </h1>
+                  {hasSubscription && (
+                    <Badge className={`gap-1 ${getTierColor(currentUser.subscriptionTier)}`}>
+                      <Crown className="h-3 w-3" />
+                      Подписка {getTierLabel(currentUser.subscriptionTier)}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-muted-foreground">{currentUser.email}</p>
                 
                 {/* Биография */}
@@ -128,13 +134,6 @@ export function AccountPage() {
                 {/* Социальные сети */}
                 {currentUser.social_links && Object.keys(currentUser.social_links).length > 0 && (
                   <SocialLinks links={currentUser.social_links} className="mt-4" />
-                )}
-                
-                {hasSubscription && (
-                  <Badge className={`mt-3 gap-1 ${getTierColor(currentUser.subscriptionTier)}`}>
-                    <Crown className="h-3 w-3" />
-                    Подписка {getTierLabel(currentUser.subscriptionTier)}
-                  </Badge>
                 )}
               </div>
             </div>

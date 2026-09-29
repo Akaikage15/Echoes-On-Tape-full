@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # --- INFRASTRUCTURE ---
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-echoes_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # --- SERVICES ---
+  
+  # API Gateway
+  gateway:
+    build: ./apps/gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - MONOLITH_URL=http://legacy-backend:5000
+    depends_on:
+      - auth-service
+      - notification-service
+      - payment-service
+      - legacy-backend
+
+  # Auth Service
+  auth-service:
+    build: ./apps/auth
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-echoes_db}?schema=public
+      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+    depends_on:
+      - postgres
+
+  # Notification Service
+  notification-service:
+    build: ./apps/notifications
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  # Payment Service (New)
+  payment-service:
+    build: ./apps/payments
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-mock}
+    depends_on:
+      - postgres
+
+  # Legacy Monolith
+  legacy-backend:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-echoes_db}?schema=public
+      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:

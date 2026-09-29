@@ -17,6 +17,7 @@ import proLibraryRoutes from './pro-library.routes';
 import demoRoutes from './demo.routes';
 import uploadRoutes from './upload.routes';
 import healthRoutes from './health.routes';
+import adminRoutes from './admin.routes';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ const router = Router();
 router.use('/', healthRoutes);
 
 // Подключение роутов
+router.use('/admin', adminRoutes);
 router.use('/auth', authRoutes);
 router.use('/subscriptions', subscriptionRoutes);
 router.use('/releases', releaseRoutes);

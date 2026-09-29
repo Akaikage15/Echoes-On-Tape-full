@@ -148,7 +148,7 @@ export function MerchPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-card/80 backdrop-blur-md rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col"
+                  className="bg-card/80 backdrop-blur-md rounded-lg overflow-hidden transition-all hover:shadow-md hover:ring-1 hover:ring-primary hover:-translate-y-1 flex flex-col h-full"
                 >
                   {/* Image */}
                   <div className="aspect-square bg-secondary flex items-center justify-center relative overflow-hidden">
@@ -183,15 +183,17 @@ export function MerchPage() {
                         {item.title}
                       </h3>
 
-                      {item.sizes && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {item.sizes.map(size => (
-                            <Badge key={size} variant="outline" className="text-xs">
-                              {size}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      <div className="min-h-[28px] mt-2">
+                        {item.sizes && item.sizes.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {item.sizes.map(size => (
+                              <Badge key={size} variant="outline" className="text-xs">
+                                {size}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
 
                       <div className="flex items-baseline gap-2 mt-3">
                         {discount > 0 ? (
