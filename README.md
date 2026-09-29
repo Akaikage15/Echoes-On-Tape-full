@@ -12,7 +12,7 @@
 
 <p align="center">
   <img
-    src="./images/logo-echoes-no-tape.jpg"
+    src="./images/82b55ea7-f040-4e0f-b663-f51c990eb098.png"
     alt="Echoes On Tape"
     width="180"
   />
@@ -131,9 +131,9 @@ Recommended layout:
     </td>
   </tr>
 </table>
--->
-
-> Visual showcase coming soon. The application is currently being prepared for its first public release.
+--><p align="center">
+  <img src="./images/photo_2025-11-22_08-56-07.jpg" alt="Echoes On Tape interface" width="100%" />
+</p>
 
 ---
 
@@ -256,386 +256,386 @@ flowchart LR
 
 ```text
 backend/src/
-├── controllers/     # HTTP request handling
-├── services/        # Business logic
-├── repositories/    # Data access
-├── routes/          # API routes
-├── middleware/      # Authentication, validation, errors, RBAC
-├── validators/      # Zod schemas
-├── lib/             # Infrastructure clients
-├── utils/           # Shared utilities
-├── app.ts           # Express application
-└── server.ts        # Application entry point
-```
-
-The backend follows a layered flow:
-
-```text
-Request
-   ↓
-Route
-   ↓
-Middleware
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Repository
-   ↓
-Prisma
-   ↓
-PostgreSQL
-```
-
----
-
-## Project Status
-
-Echoes On Tape is currently **pre-launch**.
-
-A significant part of the application architecture and core functionality already exists, but the project is not yet considered production-ready for a public audience.
-
-### Implemented foundation
-
-- [x] React frontend
-- [x] Express API
-- [x] PostgreSQL + Prisma
-- [x] User authentication
-- [x] Refresh tokens
-- [x] User profiles
-- [x] Role-based access control
-- [x] Artists
-- [x] Releases
-- [x] Blog / news
-- [x] File and audio upload infrastructure
-- [x] Subscription-aware application architecture
-- [x] Redis caching
-- [x] Rate limiting
-- [x] Swagger API documentation
-- [x] Backend testing
-- [x] Playwright E2E foundation
-- [x] Docker infrastructure
-- [x] GitHub Actions CI/CD
-
-### Before public launch
-
-- [ ] Complete unfinished user-facing functionality
-- [ ] Replace remaining development / placeholder content
-- [ ] Complete production deployment configuration
-- [ ] Finalize commerce and payment infrastructure
-- [ ] Prepare production storage for uploaded media
-- [ ] Expand automated tests
-- [ ] Complete security review
-- [ ] Prepare legal pages and required service information
-- [ ] Finalize production content
-- [ ] Perform full public-launch QA
-
----
-
-## Roadmap
-
-### Phase 1 — Stable core
-
-Build and stabilize the platform foundation:
-
-- authentication
-- users and roles
-- artists
-- releases
-- editorial content
-- database architecture
-- API validation
-- error handling
-- testing
-
-**Status:** largely implemented.
-
-### Phase 2 — Label platform
-
-Expand the platform beyond a traditional label website:
-
-- exclusive content
-- subscriptions
-- artist tools
-- demo submissions
-- community polls
-- PRO library
-- merchandise infrastructure
 
-**Status:** implementation exists in different stages and continues to be refined.
 
-### Phase 3 — Production readiness
 
-Prepare Echoes On Tape for real public usage:
 
-- deployment
-- production storage
-- security hardening
-- monitoring
-- legal preparation
-- payment infrastructure
-- content migration
-- complete QA
 
-**Status:** in progress.
 
-### Phase 4 — Open-source ecosystem
 
-After the platform is stable, improve the experience for other independent labels that want to run their own instance:
 
-- improved installation experience
-- environment templates
-- deployment presets
-- customization documentation
-- branding configuration
-- contributor documentation
-- reusable label configuration
-- community-maintained integrations
 
----
 
-## Development
 
-> [!NOTE]
-> Echoes On Tape is under active development. Setup instructions may evolve while the architecture is being stabilized.
 
-### Requirements
 
-Recommended local environment:
 
-```text
-Node.js 20
-npm
-PostgreSQL 15+
-Redis 7+
-Git
-```
 
-Docker can be used for PostgreSQL, Redis and the backend infrastructure.
 
-### Clone the repository
 
-```bash
-git clone https://github.com/Akaikage15/Echoes-On-Tape-full.git
-cd Echoes-On-Tape-full
-```
 
-### Install frontend dependencies
 
-```bash
-npm install
-```
 
-### Install backend dependencies
 
-```bash
-cd backend
-npm install
-```
 
-### Configure the backend
 
-Create your local environment file:
 
-```bash
-cp .env.example .env
-```
 
-Example:
 
-```env
-PORT=3001
-JWT_SECRET=replace_with_a_secure_secret
-DATABASE_URL="postgresql://echoes_user:your_password@localhost:5432/echoes_on_tape?schema=public"
-```
 
-> [!WARNING]
-> Never commit real production credentials or secrets.
 
-### Prepare Prisma
 
-```bash
-npx prisma generate
-npm run prisma:migrate
-```
 
-Optional development seed:
 
-```bash
-npx prisma db seed
-```
 
-### Infrastructure with Docker
 
-The repository includes Docker Compose configuration for:
 
-- PostgreSQL
-- Redis
-- Backend API
 
-From the `backend` directory:
 
-```bash
-docker compose up -d postgres redis
-```
 
-### Run the backend
 
-```bash
-npm start
-```
 
-The API is configured to run on:
 
-```text
-http://localhost:3001
-```
 
-Swagger documentation is available through:
 
-```text
-http://localhost:3001/api-docs
-```
 
-### Run the frontend
 
-From the repository root:
 
-```bash
-npm run dev
-```
 
-The frontend development server is configured for:
 
-```text
-http://localhost:3000
-```
 
----
 
-## Testing
 
-### Frontend
 
-```bash
-npm test
-```
 
-### Backend
 
-```bash
-cd backend
-npm test
-```
 
-### Backend coverage
 
-```bash
-npm run test:coverage
-```
 
-### End-to-end
 
-Playwright is used for browser-level testing.
 
-```bash
-npx playwright test
-```
 
----
 
-## API
 
-The backend provides a REST API for the platform.
 
-Current API areas include:
 
-```text
-/api/auth
-/api/account
-/api/artists
-/api/releases
-/api/posts
-/api/subscriptions
-/api/upload
-/api/merch
-/api/exclusives
-/api/polls
-/api/pro-library
-/api/demos
-```
 
-Interactive API documentation is generated with Swagger/OpenAPI and exposed through `/api-docs` while the backend is running.
 
----
 
-## Security
 
-The project currently includes several security-oriented mechanisms:
 
-- password hashing
-- JWT access tokens
-- refresh tokens
-- HTTP-only cookie support
-- request validation
-- role-based access control
-- ownership checks
-- API rate limiting
-- centralized error handling
-- production-safe error responses
-- file type and file size validation
 
-Security is an ongoing process and the project has **not yet undergone a professional external security audit**.
 
-If you discover a security issue, please avoid publishing sensitive exploit details in a public issue.
 
----
 
-## Self-hosting
 
-One of the long-term goals of Echoes On Tape is to make it practical for other small independent labels to fork and adapt the project.
 
-The architecture is already designed around commonly available open-source infrastructure:
 
-```text
-React
-Node.js
-PostgreSQL
-Redis
-Docker
-```
 
-However, the project is still being prepared for public deployment, and the self-hosting experience is not yet considered polished.
 
-If you experiment with deploying your own instance, feedback and improvements to the setup process are welcome.
 
----
 
-## Contributing
 
-Echoes On Tape started as infrastructure for a real small music label, but contributions from other developers are welcome.
 
-You can help with:
 
-- frontend development
-- backend development
-- testing
-- documentation
-- accessibility
-- security
-- deployment tooling
-- UI / UX
-- localization
-- music-platform integrations
 
-Before starting a large change, opening an issue describing the idea is recommended.
 
-Small fixes and improvements can be submitted directly through a pull request.
 
-### Development philosophy
 
-The project aims to stay:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 **Practical.**  
 Features should solve real problems for artists, listeners or label operators.
@@ -709,4 +709,8 @@ Echoes On Tape is built on top of many open-source projects, including:
   <strong>Echoes On Tape</strong>
   <br />
   Independent music. Direct connection. Open infrastructure.
+</p>
+
+<p align="center">
+  <img src="./images/futter.png" alt="Echoes On Tape" width="100%" />
 </p>
